@@ -71,6 +71,12 @@ export default function EditorTool({
       </div>
       <div className="flex gap-2 sm:gap-4 flex-wrap">
         <Button
+          onClick={() => handleViewRight("settings")}
+          className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0"
+        >
+          <span>Settings</span>
+        </Button>
+        <Button
           onClick={() => handleViewRight("commit")}
           className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0"
         >

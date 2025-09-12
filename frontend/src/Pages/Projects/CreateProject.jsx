@@ -8,6 +8,7 @@ export default function CreateProject() {
   const [title, setTitle] = useState(""); // title state
   const [about, setAbout] = useState(""); // title state
   const [topics, setTopics] = useState(""); // content state
+  const [editors, setEditors] = useState( []); // content state
   const [privatMark, setPrivateMark] = useState(false); // content state
 
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function CreateProject() {
   };
   return (
     <div className="min-h-screen flex flex-col items-center  w-full p-6">
-      <div className="max-w-2xl w-3/6 flex flex-col space-y-8 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 mt-16 ">
+      <div className="max-w-2xl w-3/6 flex flex-col space-y-8 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 ">
         <div className="text-center">
            <h1 className="text-gray-800 text-2xl sm:text-3xl font-medium  gap-2 py-2 uppercase">
           {" "}

@@ -13,6 +13,7 @@ import PremiumIndex from "../Premium/PremiumIndex";
 import MathSymbolsEditor from "./MathSymbolsEditor";
 import AIChat from "./AIChat";
 import { socket } from "../../socket";
+import ProjectSettings from "./ProjectSettings";
 
 export default function EditorIndex() {
   const { projectid } = useParams(); // 👈 here you get "id" from the URL
@@ -156,38 +157,6 @@ export default function EditorIndex() {
       setLoading(false);
     }
   };
-  const compileLatexWithImagetem = async () => {
-    try {
-      setLoading(true); // start loading
-      const res = await api.post(
-        `/projects/compile/${projectid}`,
-        { content: latex },
-        {
-          responseType: "blob",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      const contentType = res.headers["content-type"];
-
-      if (contentType.includes("application/pdf")) {
-        setIsError(false);
-        const blob = res.data;
-        setPdfUrl(URL.createObjectURL(blob));
-        setDebug(false);
-      } else {
-        setIsError(true);
-        setDebug(true);
-        const text = await res.data.text();
-        setErrorFix(text);
-        setPdfUrl("");
-        console.log("Compilation error: " + text);
-      }
-    } catch (err) {
-      console.error("Error compiling LaTeX:", err);
-    } finally {
-      setLoading(false); // stop loading
-    }
-  };
 
   //  save file
   const saveFile = () => {
@@ -259,6 +228,11 @@ export default function EditorIndex() {
             <>
               {" "}
               <Commit projectid={projectid} handleViewRight={handleViewRight} />
+            </>
+          ) : rightView == "settings" ? (
+            <>
+              {" "}
+              <ProjectSettings projectid={projectid}  />
             </>
           ) : (
             <MonacoEditor

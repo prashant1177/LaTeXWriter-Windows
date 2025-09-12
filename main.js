@@ -40,7 +40,7 @@ app.on("activate", () => {
 
 // Save project locally
 ipcMain.handle("save-project", async (event, { projectId, folders, files, rootFolder }) => {
-  const baseDir = path.join(app.getPath("documents"), "LatexProjects", projectId);
+  const baseDir = path.join(app.getPath("userData"), "LatexProjects", projectId);
   fs.mkdirSync(baseDir, { recursive: true });
 
   const writeRecursive = (dir, parentId) => {

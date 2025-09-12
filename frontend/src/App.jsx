@@ -1,0 +1,94 @@
+import "./App.css";
+import React, { useState } from "react";
+import Landing from "./Pages/Landing/Landing";
+import Navbar from "./components/Navbar";
+import {
+  Routes,
+  Route,
+} from "react-router-dom";
+import Login from "./Pages/UserAuth/Login";
+import Register from "./Pages/UserAuth/Register";
+import Sidebar from "./components/Sidebar";
+import { setAuthToken } from "./api";
+import UserEdit from "./Pages/UserView/UserEdit";
+import CreateProject from "./Pages/Projects/CreateProject";
+import EditorIndex from "./Pages/LatexEditor/EditorIndex";
+import TemplatesIndex from "./Pages/Templates/TemplatesIndex";
+import PremiumPage from "./Pages/Premium/PremiumPage";
+import LatexDocumentationIndex from "./Pages/Documentation/LatexDocumentationIndex";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import MyProfileIndex from "./Pages/Projects/MyProjectsList/MyProfileIndex";
+import LatexWriterDocumentationIndex from "./Pages/Documentation/LatexWriterDocumentationIndex";
+import LatexWriterDocumentationPageView from "./Pages/Documentation/LatexWriterDocumentationPageView";
+import Connect from "./Pages/Projects/Connect";
+
+function App() {
+  const [isActive, setIsActive] = useState(false);
+  const [sidebarHide, setSidebarHide] = useState("w-16");
+  const token = localStorage.getItem("token");
+  if (token) {
+    setAuthToken(token);
+  }
+  const toggleSidebar = () => {
+    setIsActive((prev) => !prev); // toggle class
+    if (isActive) {
+      setSidebarHide("w-16");
+    } else {
+      setSidebarHide("w-64");
+    }
+  };
+  return (
+    <GoogleOAuthProvider clientId={"519430176658-odegngrjcapusjc4gcfu4vtqq1fflm1d.apps.googleusercontent.com"}>
+      <div>
+        {token ? (
+          <Sidebar
+            toggleSidebar={toggleSidebar}
+            sidebarHide={sidebarHide}
+            isActive={isActive}
+          />
+        ) : (
+          <Navbar />
+        )}
+
+        <div
+          className={`main-content transition-all duration-300 ${
+            token ? `${isActive ? "ml-64" : "ml-16"}` : ""
+          }`}
+        >
+          <Routes>
+            <Route
+              path="/"
+              element={token ? <MyProfileIndex /> : <Landing />}
+            />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/latexeditor/:projectid" element={<EditorIndex />} />
+            <Route path="/user" element={<UserEdit />} />
+            <Route path="/templates" element={<TemplatesIndex />} />
+
+            {/*    Sitepage */}
+            <Route
+              path="/documentation/latex"
+              element={<LatexDocumentationIndex />}
+            />
+            <Route
+              path="/documentation/latexwriter"
+              element={<LatexWriterDocumentationIndex />}
+            />
+            <Route
+              path="/documentation/latexwriter/:slug"
+              element={<LatexWriterDocumentationPageView />}
+            />
+            <Route path="/pricing" element={<PremiumPage />} />
+
+            <Route path="/create/project" element={<CreateProject />} />
+            <Route path="/connect" element={<Connect />} />
+          </Routes>
+
+        </div>
+      </div>
+    </GoogleOAuthProvider>
+  );
+}
+
+export default App;

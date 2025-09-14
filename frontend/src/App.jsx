@@ -2,10 +2,7 @@ import "./App.css";
 import React, { useState } from "react";
 import Landing from "./Pages/Landing/Landing";
 import Navbar from "./components/Navbar";
-import {
-  Routes,
-  Route,
-} from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./Pages/UserAuth/Login";
 import Register from "./Pages/UserAuth/Register";
 import Sidebar from "./components/Sidebar";
@@ -21,14 +18,28 @@ import MyProfileIndex from "./Pages/Projects/MyProjectsList/MyProfileIndex";
 import LatexWriterDocumentationIndex from "./Pages/Documentation/LatexWriterDocumentationIndex";
 import LatexWriterDocumentationPageView from "./Pages/Documentation/LatexWriterDocumentationPageView";
 import Connect from "./Pages/Projects/Connect";
-
 function App() {
   const [isActive, setIsActive] = useState(false);
   const [sidebarHide, setSidebarHide] = useState("w-16");
-  const token = localStorage.getItem("token");
-  if (token) {
-    setAuthToken(token);
-  }
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
+  const navigate = useNavigate();
+
+  setAuthToken(token);
+  const handleLogin = (newToken) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+    navigate("/");
+  };
+
+  // function to handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setAuthToken(null);
+    navigate("/");
+  };
+
   const toggleSidebar = () => {
     setIsActive((prev) => !prev); // toggle class
     if (isActive) {
@@ -38,13 +49,18 @@ function App() {
     }
   };
   return (
-    <GoogleOAuthProvider clientId={"519430176658-odegngrjcapusjc4gcfu4vtqq1fflm1d.apps.googleusercontent.com"}>
+    <GoogleOAuthProvider
+      clientId={
+        "519430176658-odegngrjcapusjc4gcfu4vtqq1fflm1d.apps.googleusercontent.com"
+      }
+    >
       <div>
         {token ? (
           <Sidebar
             toggleSidebar={toggleSidebar}
             sidebarHide={sidebarHide}
             isActive={isActive}
+            logout={handleLogout}
           />
         ) : (
           <Navbar />
@@ -60,8 +76,12 @@ function App() {
               path="/"
               element={token ? <MyProfileIndex /> : <Landing />}
             />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+
+            <Route
+              path="/register"
+              element={<Register onLogin={handleLogin} />}
+            />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/latexeditor/:projectid" element={<EditorIndex />} />
             <Route path="/user" element={<UserEdit />} />
             <Route path="/templates" element={<TemplatesIndex />} />
@@ -84,11 +104,10 @@ function App() {
             <Route path="/create/project" element={<CreateProject />} />
             <Route path="/connect" element={<Connect />} />
           </Routes>
-
         </div>
       </div>
     </GoogleOAuthProvider>
   );
 }
-
+//
 export default App;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import api, { setAuthToken } from "../../api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   User,
   Lock,
@@ -15,12 +15,14 @@ import Button from "../../ui/Button/Button";
 import OtpForm from "./OtpForm";
 import { GoogleLogin } from "@react-oauth/google";
 
-function Register() {
+function Register({ onLogin }) {
+  
   const [form, setForm] = useState({
     fullname: "",
     email: "",
     password: "",
   });
+  
   const [loading, setLoading] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [token, setToken] = useState(null); // JWT token from backend
@@ -52,7 +54,7 @@ function Register() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("username", res.data.username);
       setAuthToken(res.data.token);
-      window.location.href = "/";
+            onLogin(res.data.token);
     } catch (err) {
       console.error(err);
     }finally {

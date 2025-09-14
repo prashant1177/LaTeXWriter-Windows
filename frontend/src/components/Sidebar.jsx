@@ -12,15 +12,10 @@ import {
   User,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { setAuthToken } from "../api";
-
-export default function Sidebar({ toggleSidebar, sidebarHide, isActive }) {
+export default function Sidebar({ toggleSidebar, sidebarHide, isActive,logout }) {
   const username = localStorage.getItem("username");
-  const logout = () => {
-    localStorage.removeItem("token");
-    setAuthToken(null);
-    window.location.href = "/";
-  };
+  
+ 
   const justify = isActive ? null : "justify-center";
   return (
     <div

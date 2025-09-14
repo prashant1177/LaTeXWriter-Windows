@@ -5,11 +5,9 @@ import { User, Lock, Sparkles, Brain, ArrowRight } from "lucide-react";
 import Input from "../../ui/Input/Input";
 import Button from "../../ui/Button/Button";
 import { GoogleLogin } from "@react-oauth/google";
-function Login() {
+function Login({ onLogin }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -22,10 +20,11 @@ function Login() {
       setAuthToken(token);
 
       localStorage.getItem("token");
-      window.location.href = "/";
+      onLogin(token);
+
     } catch (err) {
       alert(err.response?.data?.msg || "Login failed");
-    } finally {
+    }finally {
       setLoading(false);
     }
   };
@@ -38,7 +37,8 @@ function Login() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("username", res.data.username);
       setAuthToken(res.data.token);
-      window.location.href = "/";
+      onLogin(res.data.token);
+
     } catch (err) {
       console.error(err);
     }finally {
@@ -73,6 +73,8 @@ function Login() {
                 type="text"
                 placeholder="Enter your email"
                 required
+                  value={form.email}
+
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
             </div>
@@ -86,6 +88,8 @@ function Login() {
                 type="password"
                 placeholder="Password"
                 required
+                  value={form.password}
+
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
             </div>

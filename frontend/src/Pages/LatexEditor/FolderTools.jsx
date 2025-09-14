@@ -1,11 +1,10 @@
-import { useRef } from "react";
-import api from "../../api";
 import { FolderPlus, FilePlus, Upload, ImagePlus, Save } from "lucide-react";
 
 export default function FolderTools({
   saveFile,
   setCreateNew,
   uploadImage,
+  uploadFile,
 }) {
   return (
     <div className="w-full bg-gray-950 px-2 sm:px-4 lg:px-8 py-4 text-gray-300 text-sm">
@@ -15,7 +14,7 @@ export default function FolderTools({
       onClick={() => setCreateNew("folder")}
       className="flex items-center gap-2 hover:text-blue-500 transition-all"
     >
-      <FolderPlus size={18} />
+      <FolderPlus size={16} />
       <span className="hidden sm:inline">New Folder</span>
     </button>
 
@@ -27,7 +26,7 @@ export default function FolderTools({
       onClick={() => setCreateNew("file")}
       className="flex items-center gap-2 hover:text-blue-500 transition-all"
     >
-      <FilePlus size={18} />
+      <FilePlus size={16} />
       <span className="hidden sm:inline">New File</span>
     </button>
 
@@ -35,17 +34,26 @@ export default function FolderTools({
     <div className="h-5 border-l border-gray-600" />
 
     {/* Upload File */}
-    <button onClick={()=> alert("This feature will be available in future.")} className="flex items-center gap-2 hover:text-blue-500 transition-all">
-      <Upload size={18} />
+<label className="flex items-center gap-2 cursor-pointer hover:text-blue-500 transition-all">
+      <Upload size={16} />
       <span className="hidden sm:inline">Upload File</span>
-    </button>
-
+      <input
+        type="file"
+        accept=".tex,.bib,.cls,.sty,.txt"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          if (e.target.files.length > 0) {
+            uploadFile(e.target.files[0]);
+          }
+        }}
+      />
+    </label>
     {/* Divider */}
     <div className="h-5 border-l border-gray-600" />
 
     {/* Upload Image */}
     <label className="flex items-center gap-2 cursor-pointer hover:text-blue-500 transition-all">
-      <ImagePlus size={18} />
+      <ImagePlus size={16} />
       <span className="hidden sm:inline">Upload Image</span>
       <input
         type="file"
@@ -67,7 +75,7 @@ export default function FolderTools({
       onClick={() => saveFile()}
       className="flex items-center gap-2 hover:text-blue-500 transition-all"
     >
-      <Save size={18} />
+      <Save size={16} />
       <span className="hidden sm:inline">Save File</span>
     </button>
   </div>

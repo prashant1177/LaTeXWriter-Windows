@@ -52,6 +52,7 @@ export default function Sidebar({ toggleSidebar, sidebarHide, isActive }) {
         >
           <PencilLine size={24} /> {isActive ? <span>New Project</span> : null}
         </Link>
+      {  /*
         <Link
           to={`/connect`}
           className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}
@@ -59,7 +60,7 @@ export default function Sidebar({ toggleSidebar, sidebarHide, isActive }) {
           <MonitorDot />
           {isActive ? <span>Connect</span> : null}
         </Link>
-
+*/}
         <Link
           to={`/Pricing`}
           className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}

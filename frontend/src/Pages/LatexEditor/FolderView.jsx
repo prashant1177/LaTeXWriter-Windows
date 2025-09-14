@@ -30,26 +30,24 @@ export default function FolderView({
   const [newName, setNewName] = useState(""); // content state
   const [backFolder, setBackFolder] = useState(null);
 
-  
   useEffect(() => {
     const fileHandler = ({ file }) => {
       setFiles((prev) => [...prev, file]); // 👈 update state
     };
-const folderHandler = ({ folder }) => {
+    const folderHandler = ({ folder }) => {
       setFolders((prev) => [...prev, folder]); // 👈 update state
     };
-  const fileDeletedHandler = ({ fileID }) => {
-    setFiles((prev) => prev.filter((f) => f._id !== fileID));
-  };
-    socket.on("folder-created", folderHandler)
+    const fileDeletedHandler = ({ fileID }) => {
+      setFiles((prev) => prev.filter((f) => f._id !== fileID));
+    };
+    socket.on("folder-created", folderHandler);
     socket.on("file-created", fileHandler);
-  socket.on("file-deleted", fileDeletedHandler);
+    socket.on("file-deleted", fileDeletedHandler);
 
     return () => {
       socket.off("file-created", fileHandler);
       socket.off("folder-created", folderHandler);
-    socket.off("file-deleted", fileDeletedHandler);
-
+      socket.off("file-deleted", fileDeletedHandler);
     };
   }, []);
   const openFile = async (fileID, fileName) => {
@@ -114,7 +112,13 @@ const folderHandler = ({ folder }) => {
 
     await api.post(`/projects/uploadimage/${projectid}`, formData);
   };
+ const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("currFolder", currFolder);
 
+    await api.post(`/projects/uploadfile/${projectid}`, formData);
+  };
   const deleteFile = async (fileID) => {
     await api.post(`/projects/deleteFile/${projectid}`, {
       fileID,
@@ -127,6 +131,7 @@ const folderHandler = ({ folder }) => {
         setCreateNew={setCreateNew}
         projectid={projectid}
         uploadImage={uploadImage}
+        uploadFile={uploadFile}
       />
       {!currFolder ? (
         <div className="flex flex-col text-gray-800">

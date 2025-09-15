@@ -226,7 +226,7 @@ export default function EditorIndex() {
           ) : rightView == "settings" ? (
             <>
               {" "}
-              <ProjectSettings projectid={projectid}  />
+              <ProjectSettings projectid={projectid} handleViewRight={handleViewRight} />
             </>
           ) : (
             <MonacoEditor

@@ -4,15 +4,23 @@ import TextArea from "../../ui/Input/TextArea";
 import Button from "../../ui/Button/Button";
 import { useEffect } from "react";
 import api from "../../api";
-import { CircleMinus, CirclePlus, CrossIcon, RemoveFormatting } from "lucide-react";
+import {
+  CircleMinus,
+  CirclePlus,
+  MoveLeft,
+  MoveRight,
+  
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function ProjectSettings({ projectid }) {
+export default function ProjectSettings({ projectid,handleViewRight }) {
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
   const [topics, setTopics] = useState("");
   const [owner, setOwner] = useState("");
   const [collaborators, setCollaborators] = useState({});
   const [newEditor, setNewEditor] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +42,7 @@ export default function ProjectSettings({ projectid }) {
   };
 
   const saveChanges = async () => {
-     await api.put(`/projects/settings/${projectid}`, {
+    await api.put(`/projects/settings/${projectid}`, {
       title,
       about,
       topics,
@@ -46,14 +54,28 @@ export default function ProjectSettings({ projectid }) {
     });
     setNewEditor("");
   };
+  const deleteProject = async () => {
+    try {
+      await api.delete(`/projects/delete/${projectid}`);
+      navigate(`/`);
+    } catch (e) {
+      alert("Failed to delete project");
+    }
+  };
 
   return (
     <div className="h-full w-full  overflow-y-auto">
       <div className="flex justify-between border-b py-2 px-8 bg-gray-950 text-gray-100 text-sm ">
-        <h2 className="flex items-center  gap-2  ">Project Settings</h2>
-        <Button className="text-gray-300" onClick={saveChanges}>
-          Save Changes
-        </Button>
+        <h2 className="flex items-center">Project Settings</h2>
+        <div className="flex items-center gap-8">
+          <button className="text-gray-500 flex items-center gap-3 hover:text-gray-300 transition"  onClick={() => handleViewRight("Editor")}>
+          <MoveLeft/>  Back To Editor
+          </button>
+
+          <Button  onClick={saveChanges} >
+            Save Changes
+          </Button>
+        </div>
       </div>
       <div className="space-y-8 rounded-2xl w-full p-6">
         {/* Title */}
@@ -91,11 +113,10 @@ export default function ProjectSettings({ projectid }) {
         {/* Collaborators */}
         <div>
           <div className="space-y-2 ">
-            
-          <label className="block text-sm font-medium mb-2">Editors</label>
-          <div className="flex justify-between items-center bg-gray-100 px-3 py-2 rounded-md">
-            <span>{owner}</span>
-          </div>
+            <label className="block text-sm font-medium mb-2">Editors</label>
+            <div className="flex justify-between items-center bg-gray-100 px-3 py-2 rounded-md">
+              <span>{owner}</span>
+            </div>
             {collaborators.length > 0 &&
               collaborators.map((c) => (
                 <div
@@ -107,7 +128,7 @@ export default function ProjectSettings({ projectid }) {
                     onClick={() => removeAccess(c.id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                   <CircleMinus />
+                    <CircleMinus />
                   </button>
                 </div>
               ))}
@@ -120,9 +141,14 @@ export default function ProjectSettings({ projectid }) {
               onChange={(e) => setNewEditor(e.target.value)}
               placeholder="Enter email to add editor"
             />
-            <Button onClick={addEditor} ><CirclePlus /></Button>
+            <Button onClick={addEditor}>
+              <CirclePlus />
+            </Button>
           </div>
         </div>
+        <Button onClick={deleteProject} varient="danger">
+          Delete Project
+        </Button>
       </div>
     </div>
   );

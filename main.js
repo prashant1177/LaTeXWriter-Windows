@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 
-const isDev = true; // change to false in prod
+const isDev = false; // change to false in prod
 let mainWindow;
 
 function createWindow() {

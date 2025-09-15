@@ -53,18 +53,23 @@ export default function FolderView({
         prev.map((f) => (f._id === foldeerID ? { ...f, name: newName } : f))
       );
     };
+    const folderDeletedHandler = ({ foldeerID }) => {
+      setFolders((prev) => prev.filter((f) => f._id !== foldeerID));
+    };
     socket.on("folder-created", folderHandler);
     socket.on("file-created", fileHandler);
     socket.on("file-deleted", fileDeletedHandler);
     socket.on("file-renamed", fileRenameHandler);
     socket.on("folder-renamed", folderRenameHandler);
+    socket.on("folder-deleted", folderDeletedHandler);
 
     return () => {
       socket.off("file-created", fileHandler);
       socket.off("folder-created", folderHandler);
       socket.off("file-deleted", fileDeletedHandler);
       socket.off("file-renamed", fileRenameHandler);
-    socket.on("folder-renamed", folderRenameHandler);
+      socket.off("folder-renamed", folderRenameHandler);
+      socket.off("folder-deleted", folderDeletedHandler);
     };
   }, []);
   const openFile = async (fileID, fileName) => {
@@ -140,7 +145,6 @@ export default function FolderView({
     await api.post(`/projects/deleteFile/${projectid}`, {
       fileID,
     });
-    
   };
 
   const renameFile = async (fileID, filename) => {
@@ -155,6 +159,12 @@ export default function FolderView({
     await api.post(`/projects/renamefolder/${projectid}`, {
       foldeerID,
       foldername,
+    });
+  };
+
+  const deleteFolder = async (folderID) => {
+    await api.post(`/projects/deleteFolder/${projectid}`, {
+      folderID,
     });
   };
   return (
@@ -225,7 +235,9 @@ export default function FolderView({
                   <input
                     Value={folderInside.name}
                     autoFocus
-                    onBlur={(e) => renameFolder(folderInside._id, e.target.value)}
+                    onBlur={(e) =>
+                      renameFolder(folderInside._id, e.target.value)
+                    }
                     className="focus:outline-0 animate-pulse  [animation-iteration-count:1] "
                   />
                 ) : (

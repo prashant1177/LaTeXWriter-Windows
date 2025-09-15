@@ -126,12 +126,6 @@ export default function EditorIndex() {
       const res = await api.get(`/projects/getdata/${projectid}`);
       const { folders, files, rootFolder, rootFile } = res.data;
 
-      console.log("Fetched project data:", {
-        folders,
-        files,
-        rootFolder,
-        rootFile,
-      });
       // 2. Ask Electron main process to write/update local project
       const projectPath = await window.electronAPI.saveProject({
         projectId: projectid,

@@ -36,18 +36,20 @@ export default function Sidebar({ toggleSidebar, sidebarHide, isActive,logout })
           <House size={24} /> {isActive ? <span>Home</span> : null}
         </Link>
         <Link
-          to={`/templates`}
-          className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}
-        >
-          <FolderDot /> {isActive ? <span>Templates</span> : null}
-        </Link>
-        <Link
           to={`/create/project`}
           className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}
         >
           <PencilLine size={24} /> {isActive ? <span>New Project</span> : null}
         </Link>
       {  /*
+      
+        <Link
+          to={`/templates`}
+          className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}
+        >
+          <FolderDot /> {isActive ? <span>Templates</span> : null}
+        </Link>
+        
         <Link
           to={`/connect`}
           className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}

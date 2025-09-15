@@ -1,5 +1,7 @@
 import {
   CirclePlus,
+  Edit,
+  FilePenLine,
   FileType2,
   Folder,
   MoveLeft,
@@ -27,8 +29,9 @@ export default function FolderView({
   setImageUrl,
 }) {
   const [createNew, setCreateNew] = useState(null); // content state
-  const [newName, setNewName] = useState(""); // content state
+  const [newName, setNewName] = useState("");
   const [backFolder, setBackFolder] = useState(null);
+  const [rename, setRename] = useState(null);
 
   useEffect(() => {
     const fileHandler = ({ file }) => {
@@ -40,14 +43,28 @@ export default function FolderView({
     const fileDeletedHandler = ({ fileID }) => {
       setFiles((prev) => prev.filter((f) => f._id !== fileID));
     };
+    const fileRenameHandler = ({ fileID, newName }) => {
+      setFiles((prev) =>
+        prev.map((f) => (f._id === fileID ? { ...f, name: newName } : f))
+      ); // update name
+    };
+    const folderRenameHandler = ({ foldeerID, newName }) => {
+      setFolders((prev) =>
+        prev.map((f) => (f._id === foldeerID ? { ...f, name: newName } : f))
+      );
+    };
     socket.on("folder-created", folderHandler);
     socket.on("file-created", fileHandler);
     socket.on("file-deleted", fileDeletedHandler);
+    socket.on("file-renamed", fileRenameHandler);
+    socket.on("folder-renamed", folderRenameHandler);
 
     return () => {
       socket.off("file-created", fileHandler);
       socket.off("folder-created", folderHandler);
       socket.off("file-deleted", fileDeletedHandler);
+      socket.off("file-renamed", fileRenameHandler);
+    socket.on("folder-renamed", folderRenameHandler);
     };
   }, []);
   const openFile = async (fileID, fileName) => {
@@ -112,7 +129,7 @@ export default function FolderView({
 
     await api.post(`/projects/uploadimage/${projectid}`, formData);
   };
- const uploadFile = async (file) => {
+  const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("currFolder", currFolder);
@@ -122,6 +139,22 @@ export default function FolderView({
   const deleteFile = async (fileID) => {
     await api.post(`/projects/deleteFile/${projectid}`, {
       fileID,
+    });
+    
+  };
+
+  const renameFile = async (fileID, filename) => {
+    setRename(null);
+    await api.post(`/projects/renamefile/${projectid}`, {
+      fileID,
+      filename,
+    });
+  };
+  const renameFolder = async (foldeerID, foldername) => {
+    setRename(null);
+    await api.post(`/projects/renamefolder/${projectid}`, {
+      foldeerID,
+      foldername,
     });
   };
   return (
@@ -177,14 +210,45 @@ export default function FolderView({
           )}
 
           {folders?.map((folderInside, i) => (
-            <button
-              onClick={() => openFolder(folderInside._id)}
-              className="border-b-2 border-gray-200 p-2 flex gap-2 items-center  px-8"
+            <div
+              className="border-b-2 border-gray-200 p-2 flex gap-2 justify-between  px-8"
               key={i}
             >
-              <Folder size={16} />
-              {folderInside.name}
-            </button>
+              {" "}
+              <button
+                onClick={() => openFolder(folderInside._id)}
+                className="flex gap-2 items-center"
+                key={i}
+              >
+                <Folder size={16} />
+                {rename && rename === folderInside._id ? (
+                  <input
+                    Value={folderInside.name}
+                    autoFocus
+                    onBlur={(e) => renameFolder(folderInside._id, e.target.value)}
+                    className="focus:outline-0 animate-pulse  [animation-iteration-count:1] "
+                  />
+                ) : (
+                  folderInside.name
+                )}
+              </button>
+              <div className="flex gap-2 items-center">
+                <button
+                  className={` hover:text-blue-500 transition-colors ${
+                    rename === folderInside._id ? "text-blue-500" : null
+                  }`}
+                  onClick={() => (rename ? null : setRename(folderInside._id))}
+                >
+                  <FilePenLine strokeWidth={1} />
+                </button>
+                <button
+                  className=" hover:text-red-500 transition-colors"
+                  onClick={() => deleteFolder(folderInside._id)}
+                >
+                  <Trash strokeWidth={1} />{" "}
+                </button>
+              </div>
+            </div>
           ))}
           {files?.map((filesInside, i) => (
             <div
@@ -197,15 +261,34 @@ export default function FolderView({
                   currFile == filesInside._id && "text-blue-800"
                 }`}
               >
-                <FileType2 size={16} className={``} />
-                {filesInside.name}
+                <FileType2 size={16} />
+                {rename && rename === filesInside._id ? (
+                  <input
+                    Value={filesInside.name}
+                    autoFocus
+                    onBlur={(e) => renameFile(filesInside._id, e.target.value)}
+                    className="focus:outline-0 animate-pulse  [animation-iteration-count:1] "
+                  />
+                ) : (
+                  filesInside.name
+                )}
               </button>
-              <button
-                className=" hover:text-red-500 transition-colors"
-                onClick={() => deleteFile(filesInside._id)}
-              >
-                <Trash strokeWidth={1} />{" "}
-              </button>
+              <div className="flex gap-2 items-center">
+                <button
+                  className={` hover:text-blue-500 transition-colors ${
+                    rename === filesInside._id ? "text-blue-500" : null
+                  }`}
+                  onClick={() => (rename ? null : setRename(filesInside._id))}
+                >
+                  <FilePenLine strokeWidth={1} />
+                </button>
+                <button
+                  className=" hover:text-red-500 transition-colors"
+                  onClick={() => deleteFile(filesInside._id)}
+                >
+                  <Trash strokeWidth={1} />{" "}
+                </button>
+              </div>
             </div>
           ))}
           {backFolder && (

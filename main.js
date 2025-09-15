@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 
-const isDev = false; // change to false in prod
+const isDev = true; // change to false in prod
 let mainWindow;
 
 function createWindow() {
@@ -19,9 +19,9 @@ function createWindow() {
 
   const startUrl = isDev
     ? "http://localhost:5173" // Vite dev server
-    : `frontend/dist/index.html`; // built React app
+    : `${path.join(__dirname, "frontend/dist/index.html")}`; // built React app
 
-  mainWindow.loadURL(path.join(__dirname, startUrl));
+  mainWindow.loadURL(startUrl);
 
   // Optional: debugging  if (isDev)
  mainWindow.webContents.openDevTools();
@@ -35,9 +35,6 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// ========== IPC HANDLERS ========== //
-
-// Save project locally
 ipcMain.handle(
   "save-project",
   async (event, { projectId, folders, files, rootFolder }) => {
@@ -48,6 +45,46 @@ ipcMain.handle(
     );
     fs.mkdirSync(baseDir, { recursive: true });
 
+    // Build sets of valid names for quick lookup
+    const validFolders = new Set(folders.map(f => f.name));
+    const validFiles = new Set(files.map(f => f.name));
+
+    // Cleanup function
+    const cleanRecursive = (dir, parentId) => {
+      const childFolders = folders.filter(
+        (f) => f.parent?.toString() === parentId?.toString()
+      );
+      const childFiles = files.filter(
+        (f) => f.parent?.toString() === parentId?.toString()
+      );
+
+      // List what's already on disk
+      if (fs.existsSync(dir)) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+
+          if (entry.isDirectory()) {
+            // Is this folder still in DB?
+            const match = childFolders.find((f) => f.name === entry.name);
+            if (!match) {
+              fs.rmSync(fullPath, { recursive: true, force: true });
+            } else {
+              cleanRecursive(fullPath, match._id); // recurse into valid folder
+            }
+          } else {
+            // Is this file still in DB?
+            const match = childFiles.find((f) => f.name === entry.name);
+            if (!match) {
+              fs.unlinkSync(fullPath);
+            }
+          }
+        }
+      }
+    };
+
+    // Write function (same as yours)
     const writeRecursive = (dir, parentId) => {
       const childFolders = folders.filter(
         (f) => f.parent?.toString() === parentId?.toString()
@@ -73,7 +110,10 @@ ipcMain.handle(
       }
     };
 
+    // First clean, then rewrite
+    cleanRecursive(baseDir, rootFolder);
     writeRecursive(baseDir, rootFolder);
+
     return baseDir;
   }
 );
@@ -101,3 +141,4 @@ ipcMain.handle(
     });
   }
 );
+

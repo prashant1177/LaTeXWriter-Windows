@@ -20,6 +20,7 @@ function createWindow() {
 
   mainWindow = new BrowserWindow({
     show: false, // wait until ready
+    icon: path.join(__dirname, "logo.ico"), // 👈 set icon here
 
     webPreferences: {
       nodeIntegration: false,

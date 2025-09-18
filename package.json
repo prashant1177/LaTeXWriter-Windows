@@ -1,5 +1,5 @@
 {
-  "name": "my-electron-app",
+  "name": "latexwriter",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
@@ -9,11 +9,18 @@
     "dist": "npm run build --prefix frontend && electron-builder"
   },
   "build": {
-    "appId": "com.myapp.desktop",
-    "productName": "MyApp",
+    "appId": "com.latexwriter.desktop",
+    "productName": "LatexWriter",
     "win": {
       "target": "nsis"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "prashant1177",
+        "repo": "LaTeXWriter-Windows"
+      }
+    ]
   },
   "dependencies": {
     "@google/genai": "^1.17.0",
@@ -23,6 +30,8 @@
     "@react-pdf-viewer/default-layout": "^3.12.0",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
+    "electron-log": "^5.4.3",
+    "electron-updater": "^6.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^6.30.1",

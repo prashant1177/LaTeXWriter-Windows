@@ -1,4 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
+const { autoUpdater } = require("electron-updater");
+const log = require("electron-log");
 const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
@@ -33,15 +35,66 @@ function createWindow() {
   mainWindow.loadURL(startUrl);
 
   // Optional: debugging  if (isDev)
-  mainWindow.webContents.openDevTools();
+  //  mainWindow.webContents.openDevTools();
   mainWindow.once("ready-to-show", () => {
     splash.close();
     mainWindow.maximize(); // 👈 open maximized (like Chrome/Notion)
     mainWindow.show();
   });
+  mainWindow.setMenu(null);
+  mainWindow.webContents.on("before-input-event", (event, input) => {
+    if (
+      (input.key === "I" && input.control && input.shift) || // Ctrl+Shift+I
+      input.key === "F12"
+    ) {
+      event.preventDefault();
+    }
+  });
 }
 
-app.on("ready", createWindow);
+app.on("ready", () => {
+  createWindow();
+
+  // 🔄 Check for updates in background
+  autoUpdater.checkForUpdatesAndNotify();
+
+  // ✅ Logging for debugging
+  autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = "info";
+});
+
+// ⚠️ handle update errors
+autoUpdater.on("error", (err) => {
+  log.error("Update error:", err);
+});
+
+// 📥 when update is available
+autoUpdater.on("update-available", () => {
+  log.info("Update available, downloading...");
+});
+
+// 📥 download progress
+autoUpdater.on("download-progress", (progressObj) => {
+  log.info(`Downloaded ${Math.round(progressObj.percent)}%`);
+});
+
+// 🚀 when update is downloaded
+autoUpdater.on("update-downloaded", () => {
+  const choice = dialog.showMessageBoxSync(mainWindow, {
+    type: "question",
+    buttons: ["Restart Now", "Later"],
+    defaultId: 0,
+    cancelId: 1,
+    title: "Update Available",
+    message:
+      "A new version has been downloaded. Do you want to restart the app now to install it?",
+  });
+
+  if (choice === 0) {
+    autoUpdater.quitAndInstall(); // restart & install
+  }
+});
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });

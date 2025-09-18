@@ -23,7 +23,7 @@ export default function EditorIndex() {
   const [folders, setFolders] = useState([]); // content state
   const [files, setFiles] = useState([]); // content state
   const [isError, setIsError] = useState(false); // content state
-  const [ErrorFix, setErrorFix] = useState("");
+  const [ErrorFix, setErrorFix] = useState({});
   const [debug, setDebug] = useState(true);
 
   const [leftView, setLeftView] = useState("files");
@@ -145,8 +145,11 @@ export default function EditorIndex() {
       setPdfUrl(URL.createObjectURL(blob));
       setIsError(false);
     } catch (err) {
-      console.error("Error compiling project:", err);
+      alert("Error compiling project:");
       setIsError(true);
+        setDebug(true);
+        setErrorFix(err.stack);
+        setPdfUrl("");
     } finally {
       setLoading(false);
     }

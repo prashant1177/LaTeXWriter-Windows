@@ -7,9 +7,18 @@ const isDev = false; // change to false in prod
 let mainWindow;
 
 function createWindow() {
+  splash = new BrowserWindow({
+    width: 500,
+    height: 300,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+  });
+  splash.loadFile("splash.html"); // 👈 your splash UI
+
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    show: false, // wait until ready
+
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -24,7 +33,12 @@ function createWindow() {
   mainWindow.loadURL(startUrl);
 
   // Optional: debugging  if (isDev)
- mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
+  mainWindow.once("ready-to-show", () => {
+    splash.close();
+    mainWindow.maximize(); // 👈 open maximized (like Chrome/Notion)
+    mainWindow.show();
+  });
 }
 
 app.on("ready", createWindow);
@@ -46,8 +60,8 @@ ipcMain.handle(
     fs.mkdirSync(baseDir, { recursive: true });
 
     // Build sets of valid names for quick lookup
-    const validFolders = new Set(folders.map(f => f.name));
-    const validFiles = new Set(files.map(f => f.name));
+    const validFolders = new Set(folders.map((f) => f.name));
+    const validFiles = new Set(files.map((f) => f.name));
 
     // Cleanup function
     const cleanRecursive = (dir, parentId) => {
@@ -141,4 +155,3 @@ ipcMain.handle(
     });
   }
 );
-

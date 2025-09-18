@@ -4,7 +4,7 @@ export default function ErrorByAI({thinking,handleAskAi,debug,ErrorFix}){
 
     return (
         <div className="w-full p-8 flex items-center gap-4 flex-col">
-              <div dangerouslySetInnerHTML={{ __html:ErrorFix }}/>
+              <div dangerouslySetInnerHTML={{ __html:ErrorFix }} className="text-wrap whitespace-pre-wrap "/>
       
               {debug && (
                 <div className="flex w-full justify-center">

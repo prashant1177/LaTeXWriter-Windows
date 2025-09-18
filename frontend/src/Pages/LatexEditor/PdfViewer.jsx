@@ -18,6 +18,8 @@ export default function PdfViewer({
   setDebug,
   debug,
   compileLatexWithImage,
+  setAutoCompilation,
+  autoCompilation,
 }) {
   const [isChecked, setIsChecked] = useState(true);
   const [thinking, setThinking] = useState(false);
@@ -37,6 +39,8 @@ export default function PdfViewer({
           isChecked={isChecked}
           setIsChecked={setIsChecked}
           pdfUrl={pdfUrl}
+          setAutoCompilation={setAutoCompilation}
+          autoCompilation={autoCompilation}
         />
       </div>
 
@@ -72,7 +76,6 @@ export default function PdfViewer({
             <Button
               onClick={() => compileLatexWithImage()}
               className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0 flex items-center gap-2 h-fit"
-              
               disabled={loading}
             >
               <span className="hidden sm:inline">Compile PDF</span>

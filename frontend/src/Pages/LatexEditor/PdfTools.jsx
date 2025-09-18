@@ -7,11 +7,12 @@ export default function PdfTools({
   isChecked,
   setIsChecked,
   pdfUrl,
+  setAutoCompilation,
+  autoCompilation,
 }) {
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
-
 
   const downloadpdf = async () => {
     const a = document.createElement("a");
@@ -46,9 +47,24 @@ export default function PdfTools({
           Fast Preview Mode
         </span>
       </label>
+      <div className="flex gap-4">
         <Button onClick={downloadpdf} className="text-gray-300">
           Download
         </Button>
+        {autoCompilation ? <Button
+          onClick={() => setAutoCompilation(!autoCompilation)}
+          className="text-gray-300"
+          varient="primary"
+        >
+          Auto Compile
+        </Button> : <Button
+          onClick={() => setAutoCompilation(!autoCompilation)}
+          className="text-gray-300"
+        >
+          Auto Compile
+        </Button>}
+        
+      </div>
     </div>
   );
 }

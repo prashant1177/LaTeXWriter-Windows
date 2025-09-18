@@ -25,6 +25,7 @@ export default function EditorIndex() {
   const [isError, setIsError] = useState(false); // content state
   const [ErrorFix, setErrorFix] = useState({});
   const [debug, setDebug] = useState(true);
+  const [autoCompilation, setAutoCompilation] = useState(false);
 
   const [leftView, setLeftView] = useState("files");
   const [rightView, setRightView] = useState("Editor");
@@ -147,9 +148,9 @@ export default function EditorIndex() {
     } catch (err) {
       alert("Error compiling project:");
       setIsError(true);
-        setDebug(true);
-        setErrorFix(err.stack);
-        setPdfUrl("");
+      setDebug(true);
+      setErrorFix(err.stack);
+      setPdfUrl("");
     } finally {
       setLoading(false);
     }
@@ -158,7 +159,9 @@ export default function EditorIndex() {
   //  save file
   const saveFile = () => {
     socket.emit("edit-file", { currfile, latex });
-    compileLatexWithImage();
+    if (autoCompilation) {
+      compileLatexWithImage();
+    }
   };
   const debouncedCompile = debounce(saveFile, 800);
   useEffect(() => {
@@ -194,6 +197,8 @@ export default function EditorIndex() {
             setDebug={setDebug}
             debug={debug}
             compileLatexWithImage={compileLatexWithImage}
+            setAutoCompilation={setAutoCompilation}
+            autoCompilation={autoCompilation}
           />
         ) : leftView == "versions" ? (
           <Versions projectid={projectid} />
@@ -229,7 +234,10 @@ export default function EditorIndex() {
           ) : rightView == "settings" ? (
             <>
               {" "}
-              <ProjectSettings projectid={projectid} handleViewRight={handleViewRight} />
+              <ProjectSettings
+                projectid={projectid}
+                handleViewRight={handleViewRight}
+              />
             </>
           ) : (
             <MonacoEditor

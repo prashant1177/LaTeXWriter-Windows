@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: `http://localhost:3000`, // or your deployed Flask URL
+  baseURL: `https://api.latexwriter.com`, 
 });
 
 export const setAuthToken = token => {

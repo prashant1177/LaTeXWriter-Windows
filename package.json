@@ -13,13 +13,19 @@
     "productName": "LatexWriter",
     "win": {
       "target": "nsis",
-       "icon": "logo.ico"
+      "icon": "logo.ico"
     },
     "publish": [
       {
         "provider": "github",
         "owner": "prashant1177",
         "repo": "LaTeXWriter-Windows"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "tectonic.exe",
+        "to": "tectonic.exe"
       }
     ]
   },

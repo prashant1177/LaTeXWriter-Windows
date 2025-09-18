@@ -4,6 +4,8 @@ const log = require("electron-log");
 const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
+const tectonicPath = path.join(process.resourcesPath, "tectonic.exe");
+
 
 const isDev = false; // change to false in prod
 let mainWindow;
@@ -192,7 +194,7 @@ ipcMain.handle(
   async (event, { projectPath, mainFileName }) => {
     return new Promise((resolve, reject) => {
       const mainFilePath = path.join(projectPath, mainFileName);
-      exec(`tectonic "${mainFilePath}" --outdir="${projectPath}"`, (err) => {
+      exec(`"${tectonicPath}" "${mainFilePath}" --outdir="${projectPath}"`, (err) => {
         if (err) return reject(err);
 
         const pdfPath = path.join(

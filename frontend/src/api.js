@@ -1,14 +1,18 @@
-import axios from 'axios';
+import axios from "axios";
+let onPremiumExpired = null;
 
+export const setPremiumExpiredHandler = (callback) => {
+  onPremiumExpired = callback;
+};
 const api = axios.create({
-  baseURL: `https://api.latexwriter.com`, 
+  baseURL: `https://api.latexwriter.com`,
 });
 
-export const setAuthToken = token => {
+export const setAuthToken = (token) => {
   if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
-    delete api.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common["Authorization"];
   }
 };
 
@@ -16,13 +20,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      const { status, data } = error.response;
+      const { data } = error.response;
 
-      if (status === 403 && data.PremiumExpired) {
-        window.location.href = "/premiumexpired"; 
+      if (data.PremiumExpired && typeof onPremiumExpired === "function") {
+        onPremiumExpired(); // call your redirect or handler
       }
     }
-
     return Promise.reject(error);
   }
 );

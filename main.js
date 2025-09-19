@@ -38,7 +38,7 @@ function createWindow() {
   mainWindow.loadURL(startUrl);
 
   // Optional: debugging  if (isDev)
-  //  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
   mainWindow.once("ready-to-show", () => {
     splash.close();
     mainWindow.maximize(); // 👈 open maximized (like Chrome/Notion)

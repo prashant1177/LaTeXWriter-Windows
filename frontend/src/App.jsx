@@ -6,17 +6,17 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./Pages/UserAuth/Login";
 import Register from "./Pages/UserAuth/Register";
 import Sidebar from "./components/Sidebar";
-import { setAuthToken } from "./api";
+import { setAuthToken, setPremiumExpiredHandler } from "./api";
 import UserEdit from "./Pages/UserView/UserEdit";
 import CreateProject from "./Pages/Projects/CreateProject";
 import EditorIndex from "./Pages/LatexEditor/EditorIndex";
 import TemplatesIndex from "./Pages/Templates/TemplatesIndex";
-import PremiumPage from "./Pages/Premium/PremiumPage";
 import LatexDocumentationIndex from "./Pages/Documentation/LatexDocumentationIndex";
 import MyProfileIndex from "./Pages/Projects/MyProjectsList/MyProfileIndex";
 import LatexWriterDocumentationIndex from "./Pages/Documentation/LatexWriterDocumentationIndex";
 import LatexWriterDocumentationPageView from "./Pages/Documentation/LatexWriterDocumentationPageView";
 import Connect from "./Pages/Projects/Connect";
+import PremiumUpgradePage from "./Pages/Premium/PremiumUpgradePage";
 function App() {
   const [isActive, setIsActive] = useState(false);
   const [sidebarHide, setSidebarHide] = useState("w-16");
@@ -47,6 +47,9 @@ function App() {
       setSidebarHide("w-64");
     }
   };
+    setPremiumExpiredHandler(() => {
+    navigate("/premiumexpired");
+  });
   return (
       <div>
         {token ? (
@@ -93,7 +96,7 @@ function App() {
               path="/documentation/latexwriter/:slug"
               element={<LatexWriterDocumentationPageView />}
             />
-            <Route path="/pricing" element={<PremiumPage />} />
+            <Route path="/premiumexpired" element={<PremiumUpgradePage />} />
 
             <Route path="/create/project" element={<CreateProject />} />
             <Route path="/connect" element={<Connect />} />

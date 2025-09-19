@@ -57,7 +57,6 @@ export default function Sidebar({ toggleSidebar, sidebarHide, isActive,logout })
           <MonitorDot />
           {isActive ? <span>Connect</span> : null}
         </Link>
-*/}
         <Link
           to={`/Pricing`}
           className={`flex items-center ${justify} gap-2 text-base font-normal w-full`}
@@ -65,6 +64,7 @@ export default function Sidebar({ toggleSidebar, sidebarHide, isActive,logout })
           <Landmark />
           {isActive ? <span>Pricing</span> : null}
         </Link>
+*/}
 
         <Link
           to={`/documentation/latex`}

@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, Lock, Sparkles, Brain, ArrowRight } from "lucide-react";
 import Input from "../../ui/Input/Input";
 import Button from "../../ui/Button/Button";
-import { GoogleLogin } from "@react-oauth/google";
 function Login({ onLogin }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -28,38 +27,11 @@ function Login({ onLogin }) {
       setLoading(false);
     }
   };
-  const handleGoogleOAuth = async (response) => {
-    try {
-    setLoading(true);
-      const res = await api.post("/auth/google", {
-        tokenId: response.credential,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("username", res.data.username);
-      setAuthToken(res.data.token);
-      onLogin(res.data.token);
-
-    } catch (err) {
-      console.error(err);
-    }finally {
-      setLoading(false);
-    }
-  };
   return (
     <div className="w-full flex justify-center  p-4   text-gray-800">
       <div className="md:w-1/3  w-full">
         <div className=" lg:flex-1 w-full lg:p-8 p-4  flex flex-col items-center rounded-2xl md:border-1 border-gray-100">
-          
-          <GoogleLogin
-            onSuccess={handleGoogleOAuth}
-            onError={() => console.log("Login Failed")}
-          />
-          <div className="flex items-center my-4 w-full">
-            <hr className="flex-grow border-b border-gray-100" />
-            <span className="mx-2 text-gray-500">or</span>
-            <hr className="flex-grow border-b border-gray-100" />
-          </div>
-
+    
           <form
             onSubmit={handleSubmit}
             className="space-y-6 text-gray-700  w-full"

@@ -63,6 +63,7 @@ export default function EditorIndex() {
       }
     };
     fetchData();
+    compileLatexWithImage();
     return () => {
       socket.off("connect");
       socket.off("error");

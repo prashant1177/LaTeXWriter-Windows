@@ -13,7 +13,6 @@ import EditorIndex from "./Pages/LatexEditor/EditorIndex";
 import TemplatesIndex from "./Pages/Templates/TemplatesIndex";
 import PremiumPage from "./Pages/Premium/PremiumPage";
 import LatexDocumentationIndex from "./Pages/Documentation/LatexDocumentationIndex";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import MyProfileIndex from "./Pages/Projects/MyProjectsList/MyProfileIndex";
 import LatexWriterDocumentationIndex from "./Pages/Documentation/LatexWriterDocumentationIndex";
 import LatexWriterDocumentationPageView from "./Pages/Documentation/LatexWriterDocumentationPageView";
@@ -49,11 +48,6 @@ function App() {
     }
   };
   return (
-    <GoogleOAuthProvider
-      clientId={
-        "519430176658-odegngrjcapusjc4gcfu4vtqq1fflm1d.apps.googleusercontent.com"
-      }
-    >
       <div>
         {token ? (
           <Sidebar
@@ -106,7 +100,6 @@ function App() {
           </Routes>
         </div>
       </div>
-    </GoogleOAuthProvider>
   );
 }
 //

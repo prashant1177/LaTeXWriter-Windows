@@ -2,18 +2,14 @@ import React, { useState } from "react";
 import api, { setAuthToken } from "../../api";
 import { Link } from "react-router-dom";
 import {
-  User,
   Lock,
   UserPlus,
-  Sparkles,
-  Brain,
   ArrowRight,
   Mail,
 } from "lucide-react";
 import Input from "../../ui/Input/Input";
 import Button from "../../ui/Button/Button";
 import OtpForm from "./OtpForm";
-import { GoogleLogin } from "@react-oauth/google";
 
 function Register({ onLogin }) {
   
@@ -45,22 +41,7 @@ function Register({ onLogin }) {
     }
   };
 
-  const handleGoogleOAuth = async (response) => {
-    try {
-      setLoading(true);
-      const res = await api.post("/auth/google", {
-        tokenId: response.credential,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("username", res.data.username);
-      setAuthToken(res.data.token);
-            onLogin(res.data.token);
-    } catch (err) {
-      console.error(err);
-    }finally {
-      setLoading(false);
-    }
-  };
+
   const validatePassword = (value) => {
     const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!strongRegex.test(value))
@@ -73,15 +54,8 @@ function Register({ onLogin }) {
       {!showOtpForm ? (
         <div className="md:w-1/3  w-full">
           <div className=" lg:flex-1 w-full lg:p-8 p-4  flex flex-col items-center rounded-2xl md:border-1 border-gray-100">
-            <GoogleLogin
-              onSuccess={handleGoogleOAuth}
-              onError={() => console.log("Login Failed")}
-            />
-            <div className="flex items-center my-4 w-full">
-              <hr className="flex-grow border-b border-gray-100" />
-              <span className="mx-2 text-gray-500">or</span>
-              <hr className="flex-grow border-b border-gray-100" />
-            </div>
+           
+          
             <form
               onSubmit={handleSubmit}
               className="space-y-6 text-gray-700  w-full"

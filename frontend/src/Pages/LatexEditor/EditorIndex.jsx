@@ -35,6 +35,7 @@ export default function EditorIndex() {
   const [latex, setLatex] = useState("Loading your content...");
   const [fetch, setFetch] = useState(false);
   const editorRef = useRef(null);
+  const [errLight, SetErrLight] = useState("gray");
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -99,28 +100,13 @@ export default function EditorIndex() {
   }, [currfile]);
 
   const handleViewLeft = async (s) => {
-    /*  if (s === "math") {
-      try {
-        const res = await api.get("/api/checkpremium");
-
-        if (!res.data.isPremium) {
-          setLeftView("premium");
-          return;
-        }
-      } catch (err) {
-        console.error("Error checking premium:", err);
-
-        setLeftView("premium");
-        return;
-      }
-    } */
     setLeftView(s);
   };
   const handleViewRight = (s) => {
     setRightView(s);
   };
 
-  const compileLatexWithImage = async () => {
+  const compileLatexWithImage = async (writing = false) => {
     try {
       setLoading(true);
 
@@ -146,12 +132,18 @@ export default function EditorIndex() {
       // 4. Display PDF
       setPdfUrl(URL.createObjectURL(blob));
       setIsError(false);
+      SetErrLight("blue");
     } catch (err) {
-      alert("Error compiling project:");
-      setIsError(true);
-      setDebug(true);
-      setErrorFix(err.stack);
-      setPdfUrl("");
+      if (writing) {
+        SetErrLight("yellow");
+      } else {
+        alert("Error compiling project:");
+        setIsError(true);
+        setDebug(true);
+        setErrorFix(err.stack);
+        setPdfUrl("");
+        SetErrLight("red");
+      }
     } finally {
       setLoading(false);
     }
@@ -160,8 +152,9 @@ export default function EditorIndex() {
   //  save file
   const saveFile = () => {
     socket.emit("edit-file", { currfile, latex });
+
     if (autoCompilation) {
-      compileLatexWithImage();
+      compileLatexWithImage(true);
     }
   };
   const debouncedCompile = debounce(saveFile, 800);
@@ -200,6 +193,7 @@ export default function EditorIndex() {
             compileLatexWithImage={compileLatexWithImage}
             setAutoCompilation={setAutoCompilation}
             autoCompilation={autoCompilation}
+            errLight={errLight}
           />
         ) : leftView == "versions" ? (
           <Versions projectid={projectid} />
@@ -226,7 +220,7 @@ export default function EditorIndex() {
           />
         )}
 
-        <div className="flex-1 border-l-1 border-gray-200">
+        <div className="flex-1 md:w-1/2 border-l-1 border-gray-200">
           {rightView == "commit" ? (
             <>
               {" "}

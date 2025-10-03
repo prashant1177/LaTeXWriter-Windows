@@ -1,6 +1,4 @@
-import { useState } from "react";
-import api from "../../api";
-import { ArrowDownToLine } from "lucide-react";
+import { CircleDot } from "lucide-react";
 import Button from "../../ui/Button/Button";
 
 export default function PdfTools({
@@ -9,6 +7,7 @@ export default function PdfTools({
   pdfUrl,
   setAutoCompilation,
   autoCompilation,
+  errLight
 }) {
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -47,23 +46,27 @@ export default function PdfTools({
           Fast Preview Mode
         </span>
       </label>
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         <Button onClick={downloadpdf} className="text-gray-300">
           Download
         </Button>
-        {autoCompilation ? <Button
-          onClick={() => setAutoCompilation(!autoCompilation)}
-          className="text-gray-300"
-          varient="primary"
-        >
-          Auto Compile
-        </Button> : <Button
-          onClick={() => setAutoCompilation(!autoCompilation)}
-          className="text-gray-300"
-        >
-          Auto Compile
-        </Button>}
-        
+        {autoCompilation ? (
+          <Button
+            onClick={() => setAutoCompilation(!autoCompilation)}
+            className="text-gray-300"
+            varient="primary"
+          >
+            Auto Compile
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setAutoCompilation(!autoCompilation)}
+            className="text-gray-300"
+          >
+            Auto Compile
+          </Button>
+        )}
+        <CircleDot className={`text-${errLight}-600`} />
       </div>
     </div>
   );

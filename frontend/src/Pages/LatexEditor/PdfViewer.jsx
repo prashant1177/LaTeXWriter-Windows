@@ -20,6 +20,7 @@ export default function PdfViewer({
   compileLatexWithImage,
   setAutoCompilation,
   autoCompilation,
+  errLight
 }) {
   const [isChecked, setIsChecked] = useState(true);
   const [thinking, setThinking] = useState(false);
@@ -41,6 +42,7 @@ export default function PdfViewer({
           pdfUrl={pdfUrl}
           setAutoCompilation={setAutoCompilation}
           autoCompilation={autoCompilation}
+            errLight={errLight}
         />
       </div>
 

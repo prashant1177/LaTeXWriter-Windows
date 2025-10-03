@@ -8,7 +8,7 @@ export default function CreateProject() {
   const [title, setTitle] = useState(""); // title state
   const [about, setAbout] = useState(""); // title state
   const [topics, setTopics] = useState(""); // content state
-  const [editors, setEditors] = useState( []); // content state
+  const [documentClass, setDocumentClass] = useState("Blank");
   const [privatMark, setPrivateMark] = useState(false); // content state
 
   const navigate = useNavigate();
@@ -22,6 +22,7 @@ export default function CreateProject() {
         about: about,
         topics: topics,
         privatMark: privatMark,
+        documentClass: documentClass,
       };
       const res = await api.post("/projects/create", Project);
       const ProjectID = res.data.id;
@@ -38,19 +39,52 @@ export default function CreateProject() {
       setLoading(false);
     }
   };
+
+  const docs = ["Blank", "Article", "Report", "Book", "Letter"];
   return (
     <div className="min-h-screen flex flex-col items-center  w-full p-6">
       <div className="max-w-2xl w-3/6 flex flex-col space-y-8 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 ">
         <div className="text-center">
-           <h1 className="text-gray-800 text-2xl sm:text-3xl font-medium  gap-2 py-2 uppercase">
-          {" "}
+          <h1 className="text-gray-800 text-2xl sm:text-3xl font-medium  gap-2 py-2 uppercase">
+            {" "}
             Create New Project
-            </h1>
-            
+          </h1>
+
           <div className="w-16 h-1 bg-gray-500 mx-auto rounded-full"></div>
         </div>
 
         <div className="space-y-6">
+          
+                    <div className="space-y-2">
+            <label className="text-gray-900 block text-sm font-medium">
+              Document Template
+            </label>
+            <div className="flex w-full justify-between border px-4 py-1 rounded-lg ">
+              {docs.map((doc, i) => (
+                <label
+                  key={i}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg  cursor-pointer transition-all
+     
+     hover:bg-gray-50  `}
+                >
+                  <input
+                    type="radio"
+                    name="documentClass"
+                    value={doc}
+                    checked={documentClass === doc}
+                    onChange={(e) => setDocumentClass(e.target.value)}
+                    className={`w-4 h-4 cursor-pointer  appearance-none border-2 rounded-full  ${
+                      documentClass == doc
+                        ? "bg-gray-500 border-gray-300"
+                        : "border-gray-300"
+                    }
+  `}
+                  />
+                  <span className="text-sm text-gray-700">{doc}</span>
+                </label>
+              ))}
+            </div>
+          </div>
           <div className="space-y-2">
             <label className="text-gray-900 block text-sm font-medium">
               Title

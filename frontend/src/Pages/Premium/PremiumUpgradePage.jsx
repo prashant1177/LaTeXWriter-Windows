@@ -1,12 +1,6 @@
 import { Check, Zap, Users, Star, Clock, Shield, Crown } from "lucide-react";
-import { useState } from "react";
-
 export default function PremiumUpgradePage() {
-  const [isHovered, setIsHovered] = useState(false);
-  const  handleUpgrade = ()=> {
-  window.electronAPI.openExternal("https://latexwriter.com/pricing");
-  }
-
+  
   return (
     <div className="min-h-screen bg-white text-black relative flex items-center flex-col">
       {/* Hero Section */}
@@ -44,15 +38,13 @@ export default function PremiumUpgradePage() {
 
             {/* CTA Button */}
             <div className="mb-16">
-              <button
-                onClick={handleUpgrade}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+              <a
+              href="https://latexwriter.com/user/premium"
                 className="inline-flex items-center justify-center px-12 py-4 text-xl font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-xl"
               >
                 <Crown className="w-6 h-6 mr-3" />
                 Upgrade Now
-              </button>
+              </a>
               <p className="text-sm text-gray-500 mt-4">
                 30-day money-back guarantee • Secure payment
               </p>
@@ -194,13 +186,14 @@ export default function PremiumUpgradePage() {
             Start your premium experience today with our limited-time offer
           </p>
 
-          <button
-            onClick={handleUpgrade}
+          <a
+          href="https://latexwriter.com/user/premium"
+            
             className="inline-flex items-center justify-center px-10 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg mb-6"
           >
             <Crown className="w-6 h-6 mr-3" />
             Get Premium for $9/month
-          </button>
+          </a>
 
           <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
             <div className="flex items-center">

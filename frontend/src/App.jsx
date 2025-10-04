@@ -47,62 +47,60 @@ function App() {
       setSidebarHide("w-64");
     }
   };
-    setPremiumExpiredHandler(() => {
+  setPremiumExpiredHandler(() => {
     navigate("/premiumexpired");
   });
+
   return (
-      <div>
-        {token ? (
-          <Sidebar
-            toggleSidebar={toggleSidebar}
-            sidebarHide={sidebarHide}
-            isActive={isActive}
-            logout={handleLogout}
+    <div>
+      {token ? (
+        <Sidebar
+          toggleSidebar={toggleSidebar}
+          sidebarHide={sidebarHide}
+          isActive={isActive}
+          logout={handleLogout}
+        />
+      ) : (
+        <Navbar />
+      )}
+
+      <div
+        className={`main-content transition-all duration-300 ${
+          token ? `${isActive ? "ml-64" : "ml-16"}` : ""
+        }`}
+      >
+        <Routes>
+          <Route path="/" element={token ? <MyProfileIndex /> : <Landing />} />
+
+          <Route
+            path="/register"
+            element={<Register onLogin={handleLogin} />}
           />
-        ) : (
-          <Navbar />
-        )}
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/latexeditor/:projectid" element={<EditorIndex />} />
+          <Route path="/user" element={<UserEdit />} />
+          <Route path="/templates" element={<TemplatesIndex />} />
 
-        <div
-          className={`main-content transition-all duration-300 ${
-            token ? `${isActive ? "ml-64" : "ml-16"}` : ""
-          }`}
-        >
-          <Routes>
-            <Route
-              path="/"
-              element={token ? <MyProfileIndex /> : <Landing />}
-            />
+          {/*    Sitepage */}
+          <Route
+            path="/documentation/latex"
+            element={<LatexDocumentationIndex />}
+          />
+          <Route
+            path="/documentation/latexwriter"
+            element={<LatexWriterDocumentationIndex />}
+          />
+          <Route
+            path="/documentation/latexwriter/:slug"
+            element={<LatexWriterDocumentationPageView />}
+          />
+          <Route path="/premiumexpired" element={<PremiumUpgradePage />} />
 
-            <Route
-              path="/register"
-              element={<Register onLogin={handleLogin} />}
-            />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/latexeditor/:projectid" element={<EditorIndex />} />
-            <Route path="/user" element={<UserEdit />} />
-            <Route path="/templates" element={<TemplatesIndex />} />
-
-            {/*    Sitepage */}
-            <Route
-              path="/documentation/latex"
-              element={<LatexDocumentationIndex />}
-            />
-            <Route
-              path="/documentation/latexwriter"
-              element={<LatexWriterDocumentationIndex />}
-            />
-            <Route
-              path="/documentation/latexwriter/:slug"
-              element={<LatexWriterDocumentationPageView />}
-            />
-            <Route path="/premiumexpired" element={<PremiumUpgradePage />} />
-
-            <Route path="/create/project" element={<CreateProject />} />
-            <Route path="/connect" element={<Connect />} />
-          </Routes>
-        </div>
+          <Route path="/create/project" element={<CreateProject />} />
+          <Route path="/connect" element={<Connect />} />
+        </Routes>
       </div>
+    </div>
   );
 }
 //

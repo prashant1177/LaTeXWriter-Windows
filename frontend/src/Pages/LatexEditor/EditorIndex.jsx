@@ -3,7 +3,7 @@ import EditorTool from "./EditorTool";
 import PdfViewer from "./PdfViewer";
 import FolderView from "./FolderView";
 import api from "../../api";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import MonacoEditor from "./MonacoEditor";
 
 import { debounce } from "lodash";
@@ -15,27 +15,43 @@ import AIChat from "./AIChat";
 import { socket } from "../../socket";
 import ProjectSettings from "./ProjectSettings";
 
+import * as Y from "yjs";
+import { yCollab } from "y-codemirror.next";
+import { latex as CodeMirrorLatex } from "codemirror-lang-latex";
+import { EditorView } from "@codemirror/view";
+
 export default function EditorIndex() {
   const { projectid } = useParams(); // 👈 here you get "id" from the URL
   const [loading, setLoading] = useState(false);
   const [currFolder, setCurrFolder] = useState("");
-  const [currfile, setCurrFile] = useState({}); // content state
+  const [currfile, setCurrFile] = useState(null); // content state
   const [folders, setFolders] = useState([]); // content state
   const [files, setFiles] = useState([]); // content state
   const [isError, setIsError] = useState(false); // content state
-  const [ErrorFix, setErrorFix] = useState({});
+  const [ErrorFix, setErrorFix] = useState(null);
   const [debug, setDebug] = useState(true);
   const [autoCompilation, setAutoCompilation] = useState(false);
 
+  const [latex, setLatex] = useState("");
   const [leftView, setLeftView] = useState("files");
   const [rightView, setRightView] = useState("Editor");
-  const navigate = useNavigate();
   const [pdfUrl, setPdfUrl] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
-  const [latex, setLatex] = useState("Loading your content...");
   const [fetch, setFetch] = useState(false);
-  const editorRef = useRef(null);
   const [errLight, SetErrLight] = useState("gray");
+
+  const editorRef = useRef(null);
+  const ydocRef = useRef(null);
+  const [extensions, setExtensions] = useState([
+    CodeMirrorLatex({
+      autoCloseTags: true,
+      enableLinting: true,
+      enableTooltips: true,
+      latexHoverTooltip: true,
+    }),
+    EditorView.lineWrapping,
+  ]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,15 +66,8 @@ export default function EditorIndex() {
 
         socket.auth = { token: localStorage.getItem("token") };
         if (!socket.connected) socket.connect();
+
         socket.emit("connect-to-project", projectid);
-
-        socket.on("connect", () => {
-          console.log("Socket connected!");
-        });
-
-        socket.on("error", (msg) => {
-          console.error("Socket error:", msg);
-        });
       } catch (err) {
         console.error("Error fetching project:", err);
       }
@@ -70,34 +79,6 @@ export default function EditorIndex() {
       socket.off("error");
     };
   }, [projectid]);
-
-  useEffect(() => {
-    const handler = ({ currfile: updatedFile, latex }) => {
-      if (updatedFile === currfile && editorRef.current) {
-        const editor = editorRef.current;
-        const model = editor.getModel();
-
-        if (model && model.getValue() !== latex) {
-          const currentSelection = editor.getSelection();
-
-          model.applyEdits([
-            {
-              range: model.getFullModelRange(),
-              text: latex,
-              forceMoveMarkers: true,
-            },
-          ]);
-
-          if (currentSelection) {
-            editor.setSelection(currentSelection);
-          }
-        }
-      }
-    };
-
-    socket.on("file-updated", handler);
-    return () => socket.off("file-updated", handler);
-  }, [currfile]);
 
   const handleViewLeft = async (s) => {
     setLeftView(s);
@@ -151,22 +132,64 @@ export default function EditorIndex() {
 
   //  save file
   const saveFile = () => {
-    socket.emit("edit-file", { currfile, latex });
-
-    if (autoCompilation) {
-      compileLatexWithImage(true);
-    }
+    socket.emit("save-file", { currfile });
   };
-  const debouncedCompile = debounce(saveFile, 800);
-  useEffect(() => {
-    debouncedCompile();
 
-    return debouncedCompile.cancel;
-  }, [latex]);
-  function handleEditorMount(editor, monaco) {
-    monaco.editor.setTheme("latexThemeOverleaf");
-    editorRef.current = editor;
-  }
+  const debouncedCompile = debounce(saveFile, 2000);
+
+  useEffect(() => {
+    if (!socket || !currfile) return;
+    const ydoc = new Y.Doc();
+    ydocRef.current = ydoc;
+    const ytext = ydoc.getText(currfile);
+
+    socket.emit("join-file", currfile);
+
+    const handleInit = (update) => {
+      if (update instanceof ArrayBuffer) {
+        update = new Uint8Array(update);
+      }
+      Y.applyUpdate(ydoc, update);
+    };
+
+    const handleUpdate = (update) => {
+      if (update instanceof ArrayBuffer) {
+        update = new Uint8Array(update);
+      }
+      Y.applyUpdate(ydoc, update);
+    };
+
+    socket.on("init-doc", handleInit);
+    socket.on("doc-update", handleUpdate);
+
+    // Sync local updates → server
+    ydoc.on("update", (update) => {
+      socket.emit("doc-update", update);
+      debouncedCompile();
+    });
+
+    // Pass Y.Text to codemirror
+    setExtensions([
+      CodeMirrorLatex({
+        autoCloseTags: true,
+        enableLinting: true,
+        enableTooltips: true,
+        latexHoverTooltip: true,
+      }),
+      EditorView.lineWrapping,
+      yCollab(ytext), // ✅ make sure ytext is consistent
+    ]);
+
+    return () => {
+      // ✅ Cleanup only listeners
+
+      socket.off("init-doc", handleInit);
+      socket.off("doc-update", handleUpdate);
+
+      ydoc.destroy();
+    };
+  }, [currfile, projectid]);
+
   return (
     <div className="flex flex-col h-screen">
       <div className="shrink-0">
@@ -236,12 +259,10 @@ export default function EditorIndex() {
             </>
           ) : (
             <MonacoEditor
-              latex={latex}
-              setLatex={setLatex}
-              handleEditorMount={handleEditorMount}
               editorRef={editorRef}
               fetch={fetch}
               imageUrl={imageUrl}
+              extensions={extensions}
             />
           )}
         </div>

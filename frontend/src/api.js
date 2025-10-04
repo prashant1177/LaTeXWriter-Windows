@@ -5,7 +5,7 @@ export const setPremiumExpiredHandler = (callback) => {
   onPremiumExpired = callback;
 };
 const api = axios.create({
-  baseURL: `https://api.latexwriter.com`,
+  baseURL: `http://localhost:8080`,
 });
 
 export const setAuthToken = (token) => {

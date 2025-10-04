@@ -52,7 +52,7 @@ export default function PdfTools({
         </Button>
         {autoCompilation ? (
           <Button
-            onClick={() => setAutoCompilation(!autoCompilation)}
+            onClick={() => setAutoCompilation(false)}
             className="text-gray-300"
             varient="primary"
           >
@@ -60,7 +60,7 @@ export default function PdfTools({
           </Button>
         ) : (
           <Button
-            onClick={() => setAutoCompilation(!autoCompilation)}
+            onClick={() => setAutoCompilation(true)}
             className="text-gray-300"
           >
             Auto Compile

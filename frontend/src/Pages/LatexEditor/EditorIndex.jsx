@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import EditorTool from "./EditorTool";
 import PdfViewer from "./PdfViewer";
 import FolderView from "./FolderView";
@@ -42,15 +42,8 @@ export default function EditorIndex() {
 
   const editorRef = useRef(null);
   const ydocRef = useRef(null);
-  const [extensions, setExtensions] = useState([
-    CodeMirrorLatex({
-      autoCloseTags: true,
-      enableLinting: true,
-      enableTooltips: true,
-      latexHoverTooltip: true,
-    }),
-    EditorView.lineWrapping,
-  ]);
+
+  const [ytext, setYText] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,7 +55,6 @@ export default function EditorIndex() {
         setCurrFolder(res.data.rootFolder);
         setCurrFile(res.data.rootFile._id);
         setFetch(false);
-        setLatex(res.data.fileContent);
 
         socket.auth = { token: localStorage.getItem("token") };
         if (!socket.connected) socket.connect();
@@ -133,10 +125,18 @@ export default function EditorIndex() {
   //  save file
   const saveFile = () => {
     socket.emit("save-file", { currfile });
+    if (autoCompilation && !loading) {
+      compileLatexWithImage(true);
+    }
   };
 
-  const debouncedCompile = debounce(saveFile, 2000);
-
+  const debouncedCompile = debounce(saveFile, 1000);
+  useEffect(() => {
+    debouncedCompile();
+    return () => {
+      debouncedCompile.cancel(); // cleanup
+    };
+  }, [latex]);
   useEffect(() => {
     if (!socket || !currfile) return;
     const ydoc = new Y.Doc();
@@ -165,20 +165,10 @@ export default function EditorIndex() {
     // Sync local updates → server
     ydoc.on("update", (update) => {
       socket.emit("doc-update", update);
-      debouncedCompile();
     });
 
     // Pass Y.Text to codemirror
-    setExtensions([
-      CodeMirrorLatex({
-        autoCloseTags: true,
-        enableLinting: true,
-        enableTooltips: true,
-        latexHoverTooltip: true,
-      }),
-      EditorView.lineWrapping,
-      yCollab(ytext), // ✅ make sure ytext is consistent
-    ]);
+    setYText(ytext);
 
     return () => {
       // ✅ Cleanup only listeners
@@ -189,6 +179,29 @@ export default function EditorIndex() {
       ydoc.destroy();
     };
   }, [currfile, projectid]);
+  const extensions = useMemo(() => {
+    if (!ytext)
+      return [
+        CodeMirrorLatex({
+          autoCloseTags: true,
+          enableLinting: true,
+          enableTooltips: true,
+          latexHoverTooltip: true,
+        }),
+        EditorView.lineWrapping,
+      ];
+
+    return [
+      CodeMirrorLatex({
+        autoCloseTags: true,
+        enableLinting: true,
+        enableTooltips: true,
+        latexHoverTooltip: true,
+      }),
+      EditorView.lineWrapping,
+      yCollab(ytext),
+    ];
+  }, [ytext]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -259,6 +272,7 @@ export default function EditorIndex() {
             </>
           ) : (
             <MonacoEditor
+              setLatex={setLatex}
               editorRef={editorRef}
               fetch={fetch}
               imageUrl={imageUrl}

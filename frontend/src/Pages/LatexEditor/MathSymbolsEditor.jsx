@@ -5,7 +5,7 @@ const MathSymbolsEditor = ({ editorRef }) => {
   const [text, setText] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [copiedSymbol, setCopiedSymbol] = useState("");
-  
+
   const symbols = {
     "Basic Arithmetic & Relations": [
       { symbol: "+", latex: "+", description: "Plus" },
@@ -173,39 +173,19 @@ const MathSymbolsEditor = ({ editorRef }) => {
   };
 
   const insertSymbol = (symbol) => {
-    const editor = editorRef.current;
-    if (!editor) return;
+    if (!symbol) return;
+    const view = editorRef.current;
+    if (!view) return;
+    const { state } = view;
+    const { from, to } = state.selection.main;
 
-    const selection = editor.getSelection();
-    const model = editor.getModel();
-    if (!selection || !model) return;
-
-    const selectedText = model.getValueInRange(selection);
-    const textToInsert = selectedText || symbol;
-
-    editor.executeEdits("", [
-      {
-        range: selection,
-        text: textToInsert,
-        forceMoveMarkers: true,
-      },
-    ]);
-
-    // Move cursor after inserted symbol
-    const position = editor.getPosition();
-    editor.setPosition({
-      lineNumber: position.lineNumber,
-      column: position.column + symbol.length,
+    // Apply the edit
+    view.dispatch({
+      changes: { from, to, insert: symbol },
+      selection: { anchor: from+ symbol.length, },
     });
 
-    editor.focus();
-  };
-
-  const copyToClipboard = (latex) => {
-    navigator.clipboard.writeText(latex).then(() => {
-      setCopiedSymbol(latex);
-      setTimeout(() => setCopiedSymbol(""), 2000);
-    });
+    view.focus();
   };
 
   const filteredSymbols = () => {

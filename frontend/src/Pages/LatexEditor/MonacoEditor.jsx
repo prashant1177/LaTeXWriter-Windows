@@ -3,6 +3,7 @@ import CodeMirror from "@uiw/react-codemirror";
 
 // Enhanced Monaco Editor Component with Toolbar
 export default function MonacoEditor({
+  setLatex,
   editorRef,
   fetch,
   imageUrl,
@@ -51,6 +52,7 @@ export default function MonacoEditor({
             <img src={imageUrl} alt="Image" />
           ) : (
             <CodeMirror
+              onChange={setLatex}
               onCreateEditor={(view) => {
                 editorRef.current = view;
               }}

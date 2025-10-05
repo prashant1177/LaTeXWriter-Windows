@@ -4,8 +4,8 @@ const log = require("electron-log");
 const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
-const tectonicPath = path.join(process.resourcesPath, "tectonic.exe");
-
+// const tectonicPath = path.join(process.resourcesPath, "tectonic.exe");
+const tectonicPath = path.join(__dirname, "tectonic.exe");
 
 const isDev = false; // change to false in prod
 let mainWindow;

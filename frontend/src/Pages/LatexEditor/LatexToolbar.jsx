@@ -25,42 +25,32 @@ import React, { useState } from "react";
 export default function LaTeXToolbar({ editorRef }) {
   const [dropdownOpen, setDropdownOpen] = useState(null);
 
-  const insertCommand = (before, after = "", placeholder = "") => {
-    const editor = editorRef.current;
-    if (!editor) return;
+ const insertCommand = (before, after = "", placeholder = "") => {
+  const view = editorRef.current; // <-- use the ref here
+  if (!view) return;
 
-    const selection = editor.getSelection();
-    const selectedText = editor.getModel().getValueInRange(selection);
-    const textToInsert = selectedText || placeholder;
+  const { state } = view;
+  const { from, to } = state.selection.main;
+  const selectedText = state.sliceDoc(from, to);
+  const textToInsert = selectedText || placeholder;
+  const newText = before + textToInsert + after;
 
-    const newText = before + textToInsert + after;
+  // Apply the edit
+  view.dispatch({
+    changes: { from, to, insert: newText },
+  });
 
-    editor.executeEdits("", [
-      {
-        range: selection,
-        text: newText,
-        forceMoveMarkers: true,
-      },
-    ]);
+  // Position cursor inside placeholder if nothing was selected
+  if (!selectedText && placeholder) {
+    const cursorPos = from + before.length;
+    view.dispatch({
+      selection: { anchor: cursorPos, head: cursorPos + placeholder.length },
+    });
+  }
 
-    // Position cursor inside placeholder if no selection
-    if (!selectedText && placeholder) {
-      const position = editor.getPosition();
-      const newPosition = {
-        lineNumber: position.lineNumber,
-        column: position.column - after.length - placeholder.length,
-      };
-      editor.setPosition(newPosition);
-      editor.setSelection({
-        startLineNumber: newPosition.lineNumber,
-        startColumn: newPosition.column,
-        endLineNumber: newPosition.lineNumber,
-        endColumn: newPosition.column + placeholder.length,
-      });
-    }
+  view.focus();
+};
 
-    editor.focus();
-  };
 
   const toolGroups = [
     {

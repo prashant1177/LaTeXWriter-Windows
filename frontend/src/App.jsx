@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Landing from "./Pages/Landing/Landing";
 import Navbar from "./components/Navbar";
 import { Routes, Route, useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ import LatexWriterDocumentationIndex from "./Pages/Documentation/LatexWriterDocu
 import LatexWriterDocumentationPageView from "./Pages/Documentation/LatexWriterDocumentationPageView";
 import Connect from "./Pages/Projects/Connect";
 import PremiumUpgradePage from "./Pages/Premium/PremiumUpgradePage";
+import { socket } from "./socket";
 function App() {
   const [isActive, setIsActive] = useState(false);
   const [sidebarHide, setSidebarHide] = useState("w-16");
@@ -51,6 +52,21 @@ function App() {
     navigate("/premiumexpired");
   });
 
+  useEffect(() => {
+     const fetchData = async () => {
+       try {
+         socket.auth = { token: localStorage.getItem("token") };
+         if (!socket.connected) socket.connect();
+       } catch (err) {
+         console.error("Error fetching project:", err);
+       }
+     };
+    fetchData();
+     return () => {
+       socket.off("connect");
+       socket.off("error");
+     };
+   }, [token]);
   return (
     <div>
       {token ? (

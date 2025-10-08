@@ -30,10 +30,10 @@ export default function Versions({ projectid }) {
   };
 
   return (
-    <div className=" flex-1">
-      <h2 className="flex items-center  gap-2 text-sm  border-b py-4 px-8 bg-gray-950 text-gray-100">
-        <GitGraph size={18} /> Saved Commit History
-      </h2>
+    <div>
+      {versions?.length < 1 && (
+        <p className="text-center p-4 italic mt-8 text-gray-800">No Commit Saved</p>
+      )}
 
       {versions?.map((version, i) => {
         const date = new Date(version.createdAt).toLocaleString(); // clean date

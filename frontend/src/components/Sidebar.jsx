@@ -19,7 +19,7 @@ export default function Sidebar({ toggleSidebar, sidebarHide, isActive,logout })
   const justify = isActive ? null : "justify-center";
   return (
     <div
-      className={`transition-all duration-300 z-10 flex flex-col items-center justify-between fixed top-0 left-0 h-screen ${sidebarHide} bg-gray-950   p-4`}
+      className={`transition-all duration-300 z-10 flex flex-col items-center justify-between fixed top-0 left-0 h-screen ${sidebarHide}  p-4`}
     >
       <div className="flex flex-col space-y-8 items-center justify-center w-full text-gray-500 ">
         <Link

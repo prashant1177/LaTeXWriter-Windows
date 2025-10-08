@@ -4,11 +4,11 @@ import api from "../../api";
 import { Card, CardHeader, CardTitle, CardContent } from "../../ui/Card/Card";
 import Button from "../../ui/Button/Button";
 import TextArea from "../../ui/Input/TextArea";
-import { Info, Mail, UserPlus, User, User2 } from "lucide-react";
+import { Info, Mail,  User, User2, MoveLeft } from "lucide-react";
 import Input from "../../ui/Input/Input";
 import { Link } from "react-router-dom";
 
-export default function UserEdit() {
+export default function UserEdit({ handleLogout }) {
   const [form, setForm] = useState({
     fullname: "",
     userabout: "",
@@ -119,6 +119,26 @@ export default function UserEdit() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex gap-4">
+                  <Button type="submit" className="rounded-2xl">
+                    Save Changes
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={fetchData}
+                    className="rounded-2xl"
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    type="button"
+                    varient="transparent"
+                    onClick={handleLogout}
+                    className="rounded-2xl"
+                  >
+                    Logout
+                  </Button>
+                </div>{" "}
                 {premium ? (
                   <div className="flex items-center gap-2">
                     <span className="bg-gradient-to-br from-blue-500 to-blue-700 text-gray-50 px-4 py-2 rounded-md  font-semibold">
@@ -141,24 +161,16 @@ export default function UserEdit() {
                     Buy Premium
                   </Link>
                 )}
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={fetchData}
-                    className="rounded-2xl"
-                  >
-                    Reset
-                  </Button>
-                  <Button type="submit" className="rounded-2xl">
-                    Save Changes
-                  </Button>
-                </div>
               </div>
             </form>
           </CardContent>{" "}
         </Card>
       </div>
+      <Link to="/" className="fixed top-4 left-4 flex items-center text-gray-950 gap-2">
+            <MoveLeft size={18} />
+        {" "}
+        Home
+      </Link>
     </div>
   );
 }

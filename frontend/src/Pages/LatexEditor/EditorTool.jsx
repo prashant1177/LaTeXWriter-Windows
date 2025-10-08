@@ -1,6 +1,18 @@
-import { ArrowDownToLine } from "lucide-react";
+import {
+  FolderTree,
+  FileText,
+  Clock,
+  Sigma,
+  Sparkles,
+  GitCommitVertical,
+  House,
+  Settings,
+  Folder,
+  CircleDot,
+} from "lucide-react";
 import api from "../../api";
 import Button from "../../ui/Button/Button";
+import { Link } from "react-router-dom";
 
 export default function EditorTool({
   handleViewRight,
@@ -9,83 +21,91 @@ export default function EditorTool({
   rightView,
   compileLatexWithImage,
   loading,
+  errLight
 }) {
   return (
-    <div className="flex flex-col items-center sm:flex-row sm:justify-between p-4 px-4 sm:px-8 bg-gray-100 text-sm gap-4 sm:gap-0">
-      <div className="flex items-center gap-2 sm:gap-8">
-        <div className="border-1 border-gray-300 flex flex-wrap">
-          <button
-            onClick={() => handleViewLeft("files")}
-            className={`${
-              leftView == "files"
-                ? "bg-gray-900 text-gray-300"
-                : "text-gray-950"
-            } px-2 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap`}
+      <div className="flex w-full items-center gap-2 p-2 px-4 bg-gray-100 text-sm">
+        <Link to={`/`}>
+          {" "}
+          <Button
+            varient="transparent"
+            className=" flex items-center gap-1 text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0"
           >
-            <span className="hidden sm:inline">Files Structure</span>
-            <span className="sm:hidden">Files</span>
-          </button>
-          <button
-            onClick={() => handleViewLeft("PDF")}
-            className={`${
-              leftView == "PDF" ? "bg-gray-900 text-gray-300" : "text-gray-950"
-            } px-2 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap`}
-          >
-            <span className="hidden sm:inline">View PDF</span>
-            <span className="sm:hidden">PDF</span>
-          </button>
+            <House size={18} />
+          </Button>{" "}
+        </Link>
 
-          <button
-            className={`${
-              leftView === "versions"
-                ? "bg-gray-900 text-gray-300"
-                : "text-gray-950"
-            } px-2 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap`}
-            onClick={() => handleViewLeft("versions")}
-          >
-            <span className="hidden sm:inline">Older Versions</span>
-            <span className="sm:hidden">Versions</span>
-          </button>
-          <button
-            onClick={() => handleViewLeft("math")}
-            className={`${
-              leftView == "math" ? "bg-gray-900 text-gray-300" : "text-gray-950"
-            } px-2 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap`}
-          >
-            <span className="hidden sm:inline">Math Symbols</span>
-            <span className="sm:hidden">Math</span>
-          </button>
-
-          <button
-            onClick={() => handleViewLeft("Gemini")}
-            className={`${
-              leftView == "Gemini"
-                ? "bg-gray-900 text-gray-300"
-                : "text-gray-950"
-            } px-2 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap`}
-          >
-            <span className="hidden sm:inline">Ask Gemini</span>
-            <span className="sm:hidden">Gemini</span>
-          </button>
-        </div>
-      </div>
-      <div className="flex gap-2 sm:gap-4 flex-wrap">
-        <Button
-          onClick={() => handleViewRight("settings")}
-          className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0"
+        <button
+          onClick={() => handleViewLeft("PDF")}
+          className={`${
+            leftView == "PDF" ? "text-blue-600" : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
         >
-          <span>Settings</span>
-        </Button>
-        <Button
+          <FileText size={18} />
+        </button>
+        <button
+          onClick={() => handleViewLeft("files")}
+          className={`${
+            leftView == "files" ? "text-blue-600" : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
+        >
+          <Folder size={18} />
+        </button>
+
+        <button
+          className={`${
+            leftView === "versions"
+              ? "text-blue-600"
+              : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
+          onClick={() => handleViewLeft("versions")}
+        >
+          <Clock size={18} />
+        </button>
+
+        <button
+          onClick={() => handleViewLeft("math")}
+          className={`${
+            leftView == "math" ? "text-blue-600" : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
+        >
+          <Sigma size={18} />
+        </button>
+
+        <button
+          onClick={() => handleViewLeft("Gemini")}
+          className={`${
+            leftView == "Gemini" ? "text-blue-600" : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
+        >
+          <Sparkles size={18} />
+        </button>
+
+        <button
+          varient="transparent"
           onClick={() => handleViewRight("commit")}
-          className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0"
+          className={`${
+            rightView == "commit" ? "text-blue-600" : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
+       
         >
-          <span className="hidden sm:inline">Commit Changes</span>
-          <span className="sm:hidden">Commit</span>
-        </Button>
+          <GitCommitVertical size={18} />
+        </button>
+        <button
+          varient="transparent"
+          onClick={() => handleViewRight("settings")}
+          className={`${
+            rightView == "settings" ? "text-blue-600" : "text-gray-950"
+          } px-3 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1`}
+        >
+          <Settings size={18} />
+        </button>
+        
+                      <CircleDot className={`text-${errLight}-600 ms-auto `} />
+        
         <Button
           onClick={() => compileLatexWithImage()}
-          className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0 flex items-center gap-2"
+          className="text-xs sm:text-sm px-3 sm:px-4 py-2 flex-shrink-0 flex items-center gap-2 ms-2"
           varient="primary"
           disabled={loading}
         >
@@ -93,10 +113,8 @@ export default function EditorTool({
           {loading && (
             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
           )}
-          <span className="hidden sm:inline">Compile PDF</span>
-          <span className="sm:hidden">Compile</span>
+          Compile PDF
         </Button>
       </div>
-    </div>
   );
 }

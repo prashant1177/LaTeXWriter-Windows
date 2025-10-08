@@ -9,11 +9,11 @@ import {
   CirclePlus,
   MoveLeft,
   MoveRight,
-  
+  Settings,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function ProjectSettings({ projectid,handleViewRight }) {
+export default function ProjectSettings({ projectid, handleViewRight }) {
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
   const [topics, setTopics] = useState("");
@@ -65,16 +65,21 @@ export default function ProjectSettings({ projectid,handleViewRight }) {
 
   return (
     <div className="h-full w-full  overflow-y-auto">
-      <div className="flex justify-between border-b py-2 px-8 bg-gray-950 text-gray-100 text-sm ">
-        <h2 className="flex items-center">Project Settings</h2>
+      <div className="flex justify-between py-2 px-8 bg-gray-50  border-b border-gray-200 text-sm ">
+        <h2 className="flex items-center text-gray-950 gap-2">
+          {" "}
+          <Settings size={18} />
+          Project Settings
+        </h2>
         <div className="flex items-center gap-8">
-          <button className="text-gray-500 flex items-center gap-3 hover:text-gray-300 transition"  onClick={() => handleViewRight("Editor")}>
-          <MoveLeft/>  Back To Editor
+          <button
+            className="text-gray-800 flex items-center gap-3 hover:text-gray-950 transition"
+            onClick={() => handleViewRight("Editor")}
+          >
+            <MoveLeft /> Back To Editor
           </button>
 
-          <Button  onClick={saveChanges} >
-            Save Changes
-          </Button>
+          <Button onClick={saveChanges}>Save Changes</Button>
         </div>
       </div>
       <div className="space-y-8 rounded-2xl w-full p-6">

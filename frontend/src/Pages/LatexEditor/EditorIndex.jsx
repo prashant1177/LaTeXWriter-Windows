@@ -33,7 +33,7 @@ export default function EditorIndex() {
   const [autoCompilation, setAutoCompilation] = useState(false);
 
   const [latex, setLatex] = useState("");
-  const [leftView, setLeftView] = useState("files");
+  const [leftView, setLeftView] = useState("PDF");
   const [rightView, setRightView] = useState("Editor");
   const [pdfUrl, setPdfUrl] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
@@ -106,6 +106,9 @@ export default function EditorIndex() {
       setPdfUrl(URL.createObjectURL(blob));
       setIsError(false);
       SetErrLight("blue");
+      if(!writing){
+        setRightView("PDF");
+      }
     } catch (err) {
       if (writing) {
         SetErrLight("yellow");
@@ -205,7 +208,10 @@ export default function EditorIndex() {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="shrink-0">
+      
+
+      <div className="flex flex-col-reverse md:flex-row flex-1  md:overflow-hidden">
+        <div className="w-1/2 md:min-w-1/2 md:max-w-1/2">
         <EditorTool
           compileLatexWithImage={compileLatexWithImage}
           handleViewRight={handleViewRight}
@@ -213,10 +219,8 @@ export default function EditorIndex() {
           leftView={leftView}
           rightView={rightView}
           loading={loading}
+            errLight={errLight}
         />
-      </div>
-
-      <div className="flex flex-col-reverse  md:flex-row flex-1 md:overflow-hidden">
         {leftView == "PDF" ? (
           <PdfViewer
             pdfUrl={pdfUrl}
@@ -229,7 +233,6 @@ export default function EditorIndex() {
             compileLatexWithImage={compileLatexWithImage}
             setAutoCompilation={setAutoCompilation}
             autoCompilation={autoCompilation}
-            errLight={errLight}
           />
         ) : leftView == "versions" ? (
           <Versions projectid={projectid} />
@@ -255,8 +258,8 @@ export default function EditorIndex() {
             setImageUrl={setImageUrl}
           />
         )}
-
-        <div className="flex-1 md:w-1/2 border-l-1 border-gray-200">
+</div>
+        <div className="flex-1 w-1/2 min-w-1/2 border-l-1 border-gray-200">
           {rightView == "commit" ? (
             <>
               {" "}

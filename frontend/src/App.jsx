@@ -1,11 +1,9 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
 import Landing from "./Pages/Landing/Landing";
-import Navbar from "./components/Navbar";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./Pages/UserAuth/Login";
 import Register from "./Pages/UserAuth/Register";
-import Sidebar from "./components/Sidebar";
 import { setAuthToken, setPremiumExpiredHandler } from "./api";
 import UserEdit from "./Pages/UserView/UserEdit";
 import CreateProject from "./Pages/Projects/CreateProject";
@@ -19,8 +17,6 @@ import Connect from "./Pages/Projects/Connect";
 import PremiumUpgradePage from "./Pages/Premium/PremiumUpgradePage";
 import { socket } from "./socket";
 function App() {
-  const [isActive, setIsActive] = useState(false);
-  const [sidebarHide, setSidebarHide] = useState("w-16");
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   const navigate = useNavigate();
@@ -40,14 +36,7 @@ function App() {
     navigate("/");
   };
 
-  const toggleSidebar = () => {
-    setIsActive((prev) => !prev); // toggle class
-    if (isActive) {
-      setSidebarHide("w-16");
-    } else {
-      setSidebarHide("w-64");
-    }
-  };
+ 
   setPremiumExpiredHandler(() => {
     navigate("/premiumexpired");
   });
@@ -68,22 +57,8 @@ function App() {
      };
    }, [token]);
   return (
-    <div>
-      {token ? (
-        <Sidebar
-          toggleSidebar={toggleSidebar}
-          sidebarHide={sidebarHide}
-          isActive={isActive}
-          logout={handleLogout}
-        />
-      ) : (
-        <Navbar />
-      )}
-
       <div
-        className={`main-content transition-all duration-300 ${
-          token ? `${isActive ? "ml-64" : "ml-16"}` : ""
-        }`}
+        className={`main-content transition-all duration-300`}
       >
         <Routes>
           <Route path="/" element={token ? <MyProfileIndex /> : <Landing />} />
@@ -94,7 +69,7 @@ function App() {
           />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/latexeditor/:projectid" element={<EditorIndex />} />
-          <Route path="/user" element={<UserEdit />} />
+          <Route path="/user" element={<UserEdit handleLogout={handleLogout}/>} />
           <Route path="/templates" element={<TemplatesIndex />} />
 
           {/*    Sitepage */}
@@ -116,7 +91,6 @@ function App() {
           <Route path="/connect" element={<Connect />} />
         </Routes>
       </div>
-    </div>
   );
 }
 //

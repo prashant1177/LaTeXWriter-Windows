@@ -4,7 +4,10 @@ import { User, Lock, ArrowRight, EyeOff, Eye } from "lucide-react";
 import Input from "../../ui/Input/Input";
 import Button from "../../ui/Button/Button";
 import logo from "../../assets/logo.png";
+import ToastLayout from "../../ui/Toast";
 function Login({ onLogin }) {
+  const [toast, setToast] = useState(null);
+
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -23,13 +26,18 @@ function Login({ onLogin }) {
       localStorage.getItem("token");
       onLogin(token);
     } catch (err) {
-      alert(err.response?.data?.msg || "Login failed");
+      setToast(err.response?.data?.msg || "Login failed");
     } finally {
       setLoading(false);
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
     }
   };
   return (
     <div className="w-full h-screen">
+      {toast && <ToastLayout message={toast} />}
+
       <div className="grid sm:grid-cols-2 w-full h-full gap-4 sm:gap-0">
         <div className="w-full h-fit lg:px-32 px-4  flex flex-col items-center pt-16">
           <div className="flex items-center w-full gap-2">
@@ -158,7 +166,7 @@ function Login({ onLogin }) {
               <div className="flex gap-4 items-center">
                 Connect With Community{" "}
               </div>
-              <ul class="flex justify-center mt-5 space-x-5">
+              <ul className="flex justify-center mt-5 space-x-5">
                 <li>
                   <a href="https://www.youtube.com/@LaTeXWriter">
                     <svg
@@ -189,7 +197,7 @@ function Login({ onLogin }) {
                       viewBox="0 0 512 512"
                       height="1.7em"
                       xmlns="http://www.w3.org/2000/svg"
-                      class="svgIcon"
+                      className="svgIcon"
                       fill="white"
                     >
                       <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path>

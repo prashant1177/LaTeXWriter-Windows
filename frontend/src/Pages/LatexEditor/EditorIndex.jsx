@@ -108,11 +108,10 @@ export default function EditorIndex() {
       if (writing) {
         SetErrLight("yellow");
       } else {
-        alert("Error compiling project:");
         setIsError(true);
         setDebug(true);
         setErrorFix(err.stack);
-        setPdfUrl("");
+        setPdfUrl(null);
         SetErrLight("red");
       }
     } finally {
@@ -203,6 +202,7 @@ export default function EditorIndex() {
 
   return (
     <div className="flex flex-col h-screen">
+      
       <div className="flex flex-col lg:flex-row lg:overflow-hidden">
         <div className="flex-1  lg:min-w-1/2 lg:max-w-1/2 border-l-1 border-gray-200">
             <MonacoEditor

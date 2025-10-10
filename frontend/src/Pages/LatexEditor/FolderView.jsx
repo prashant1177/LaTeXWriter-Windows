@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import api from "../../api";
 import Input from "../../ui/Input/Input";
 import { socket } from "../../socket";
+import ToastLayout from "../../ui/Toast";
 
 export default function FolderView({
   currFolder,
@@ -32,6 +33,7 @@ export default function FolderView({
   const [newName, setNewName] = useState("");
   const [backFolder, setBackFolder] = useState(null);
   const [rename, setRename] = useState(null);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     const fileHandler = ({ file }) => {
@@ -73,102 +75,189 @@ export default function FolderView({
     };
   }, []);
   const openFile = async (fileID, fileName) => {
-    const ext = fileName.split(".").pop().toLowerCase();
+    try {
+      const ext = fileName.split(".").pop().toLowerCase();
 
-    if (["png", "jpg", "jpeg", "gif", "svg", "webp"].includes(ext)) {
+      if (["png", "jpg", "jpeg", "gif", "svg", "webp"].includes(ext)) {
+        const res = await api.get(`/projects/getfile/${projectid}`, {
+          params: { fileID },
+          responseType: "arraybuffer",
+        });
+        const blob = new Blob([res.data], {
+          type: res.headers["content-type"] || "image/*",
+        });
+        setImageUrl(URL.createObjectURL(blob));
+        setCurrFile(fileID);
+        return;
+      }
+
       const res = await api.get(`/projects/getfile/${projectid}`, {
         params: { fileID },
-        responseType: "arraybuffer",
       });
-      const blob = new Blob([res.data], {
-        type: res.headers["content-type"] || "image/*",
-      });
-      setImageUrl(URL.createObjectURL(blob));
+      setImageUrl(null);
+      setLatex(res.data.fileContent);
       setCurrFile(fileID);
-      return;
+    } catch (error) {
+      setToast("Failed to open file");
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
     }
-
-    const res = await api.get(`/projects/getfile/${projectid}`, {
-      params: { fileID },
-    });
-    setImageUrl(null);
-    setLatex(res.data.fileContent);
-    setCurrFile(fileID);
   };
 
   const openFolder = async (folderID) => {
-    const res = await api.get(`/projects/getfolder/${projectid}`, {
-      params: { folderID: folderID },
-    });
-    setFolders(res.data.Folders);
-    setBackFolder(res.data.parentId);
-    setFiles(res.data.Files);
-    setCurrFolder(folderID);
+    try {
+      const res = await api.get(`/projects/getfolder/${projectid}`, {
+        params: { folderID: folderID },
+      });
+      setFolders(res.data.Folders);
+      setBackFolder(res.data.parentId);
+      setFiles(res.data.Files);
+      setCurrFolder(folderID);
+    } catch (error) {
+      setToast("Failed to open folder");
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
 
   const newFile = async (filename) => {
-    if (!filename.trim()) return;
+    try {
+      if (!filename.trim()) return;
 
-    await api.post(`/projects/newfile/${projectid}`, {
-      currFolder,
-      filename,
-    });
+      await api.post(`/projects/newfile/${projectid}`, {
+        currFolder,
+        filename,
+      });
 
-    setNewName("");
-    setCreateNew(null);
+      setNewName("");
+      setCreateNew(null);
+      setToast("File Created Successfully");
+    } catch (error) {
+      setToast("Failed to create file");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   const newFolder = async (foldername) => {
-    if (!foldername.trim()) return;
-    const res = await api.post(`/projects/newfolder/${projectid}`, {
-      currFolder,
-      foldername,
-    });
-    setNewName("");
-    setCreateNew(null);
+    try {
+      if (!foldername.trim()) return;
+      await api.post(`/projects/newfolder/${projectid}`, {
+        currFolder,
+        foldername,
+      });
+      setNewName("");
+      setCreateNew(null);
+      setToast("Folder Created Successfully");
+    } catch (error) {
+      setToast("Failed to create folder");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
 
   const uploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("currFolder", currFolder);
-
-    await api.post(`/projects/uploadimage/${projectid}`, formData);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("currFolder", currFolder);
+      await api.post(`/projects/uploadimage/${projectid}`, formData);
+      setToast("Image Uploaded Successfully");
+    } catch (error) {
+      setToast("Failed to upload image");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   const uploadFile = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("currFolder", currFolder);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("currFolder", currFolder);
 
-    await api.post(`/projects/uploadfile/${projectid}`, formData);
+      await api.post(`/projects/uploadfile/${projectid}`, formData);
+      setToast("File Uploaded Successfully");
+    } catch (error) {
+      setToast("Failed to upload file");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   const deleteFile = async (fileID) => {
-    await api.post(`/projects/deleteFile/${projectid}`, {
-      fileID,
-    });
+    try {
+      await api.post(`/projects/deleteFile/${projectid}`, {
+        fileID,
+      });
+      setToast("File Deleted Successfully");
+    } catch (error) {
+      setToast("Failed to delete file");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
 
   const renameFile = async (fileID, filename) => {
-    setRename(null);
-    await api.post(`/projects/renamefile/${projectid}`, {
-      fileID,
-      filename,
-    });
+    try {
+      setRename(null);
+      await api.post(`/projects/renamefile/${projectid}`, {
+        fileID,
+        filename,
+      });
+      setToast("File Renamed Successfully");
+    } catch (error) {
+      setToast("Failed to rename file");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   const renameFolder = async (foldeerID, foldername) => {
-    setRename(null);
-    await api.post(`/projects/renamefolder/${projectid}`, {
-      foldeerID,
-      foldername,
-    });
+    try {
+      setRename(null);
+      await api.post(`/projects/renamefolder/${projectid}`, {
+        foldeerID,
+        foldername,
+      });
+      setToast("Folder Renamed Successfully");
+    } catch (error) {
+      setToast("Failed to rename folder");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
 
   const deleteFolder = async (folderID) => {
-    await api.post(`/projects/deleteFolder/${projectid}`, {
-      folderID,
-    });
+    try {
+      await api.post(`/projects/deleteFolder/${projectid}`, {
+        folderID,
+      });
+      setToast("Folder Deleted Successfully");
+    } catch (error) {
+      setToast("Failed to delete folder");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   return (
     <div className="flex-1">
+      {toast && <ToastLayout message={toast} />}
+
       <FolderTools
         saveFile={saveFile}
         setCreateNew={setCreateNew}

@@ -1,5 +1,7 @@
 import LaTeXToolbar from "./LatexToolbar";
 import CodeMirror from "@uiw/react-codemirror";
+import { EditorView } from "@codemirror/view";
+import { useEffect, useState } from "react";
 
 // Enhanced Monaco Editor Component with Toolbar
 export default function MonacoEditor({
@@ -9,6 +11,30 @@ export default function MonacoEditor({
   imageUrl,
   extensions,
 }) {
+  const [fontSize, setFontSize] = useState(14);
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.ctrlKey && e.key === "+") {
+        setFontSize((s) => s + 1);
+        e.preventDefault();
+      } else if (e.ctrlKey && e.key === "-") {
+        setFontSize((s) => Math.max(8, s - 1));
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  const fontTheme = EditorView.theme({
+    "&": {
+      fontSize: `${fontSize}px`,
+    },
+    ".cm-content": {
+      fontSize: `${fontSize}px`,
+    },
+  });
+
   return (
     <div className="flex flex-col h-full ">
       <LaTeXToolbar editorRef={editorRef} />
@@ -47,7 +73,7 @@ export default function MonacoEditor({
           <span className="sr-only">Loading...</span>
         </div>
       ) : (
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto style-4">
           {imageUrl ? (
             <img src={imageUrl} alt="Image" />
           ) : (
@@ -56,7 +82,7 @@ export default function MonacoEditor({
               onCreateEditor={(view) => {
                 editorRef.current = view;
               }}
-              extensions={extensions}
+              extensions={[fontTheme, ...extensions]}
             />
           )}{" "}
         </div>

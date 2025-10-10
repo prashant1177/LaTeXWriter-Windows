@@ -10,6 +10,13 @@ const tectonicPath = path.join(process.resourcesPath, "tectonic.exe");
 const isDev = false; // change to false in prod
 let mainWindow;
 
+// Configure logging
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
+log.info("App starting...");
+log.info("App version:", app.getVersion());
+log.info("isPackaged:", app.isPackaged);
+
 function createWindow() {
   splash = new BrowserWindow({
     width: 500,
@@ -18,36 +25,35 @@ function createWindow() {
     frame: false,
     alwaysOnTop: true,
   });
-  splash.loadFile("splash.html"); // 👈 your splash UI
+  splash.loadFile("splash.html");
 
   mainWindow = new BrowserWindow({
-    show: false, // wait until ready
-    icon: path.join(__dirname, "logo.ico"), // 👈 set icon here
-
+    show: false,
+    icon: path.join(__dirname, "logo.ico"),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, "preload.js"), // 👈 preload for IPC
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
   const startUrl = isDev
-    ? "http://localhost:5173" // Vite dev server
-    : `${path.join(__dirname, "frontend/dist/index.html")}`; // built React app
+    ? "http://localhost:5173"
+    : `file://${path.join(__dirname, "frontend/dist/index.html")}`;
 
   mainWindow.loadURL(startUrl);
 
-  // Optional: debugging  if (isDev)
-  //mainWindow.webContents.openDevTools();
   mainWindow.once("ready-to-show", () => {
     splash.close();
-    mainWindow.maximize(); // 👈 open maximized (like Chrome/Notion)
+    mainWindow.maximize();
     mainWindow.show();
   });
+
   mainWindow.setMenu(null);
+  
   mainWindow.webContents.on("before-input-event", (event, input) => {
     if (
-      (input.key === "I" && input.control && input.shift) || // Ctrl+Shift+I
+      (input.key === "I" && input.control && input.shift) ||
       input.key === "F12"
     ) {
       event.preventDefault();
@@ -58,49 +64,85 @@ function createWindow() {
 app.on("ready", () => {
   createWindow();
 
-  // 🔄 Check for updates in background
-  autoUpdater.checkForUpdatesAndNotify();
-
-  // ✅ Logging for debugging
-  autoUpdater.logger = log;
-  autoUpdater.logger.transports.file.level = "info";
+  // Check for updates after app loads (only in production)
+  if (!isDev) {
+    setTimeout(() => {
+      log.info("Checking for updates...");
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 3000);
+  }
 });
 
-// ⚠️ handle update errors
+// ========== AUTO-UPDATER EVENTS ==========
+
+autoUpdater.on("checking-for-update", () => {
+  log.info("Checking for updates...");
+});
+
+autoUpdater.on("update-not-available", (info) => {
+  log.info("Update not available. Current version is up to date.");
+});
+
 autoUpdater.on("error", (err) => {
   log.error("Update error:", err);
+  log.error("Error stack:", err.stack);
 });
 
-// 📥 when update is available
-autoUpdater.on("update-available", () => {
-  log.info("Update available, downloading...");
+autoUpdater.on("update-available", (info) => {
+  log.info("Update available:", info.version);
+  
+  dialog.showMessageBox(mainWindow, {
+    type: "info",
+    title: "Update Available",
+    message: `A new version ${info.version} is available!`,
+    detail: `Current version: ${app.getVersion()}\n\nThe update will be downloaded in the background.`,
+    buttons: ["OK"]
+  });
 });
 
-// 📥 download progress
 autoUpdater.on("download-progress", (progressObj) => {
-  log.info(`Downloaded ${Math.round(progressObj.percent)}%`);
+  const percent = Math.round(progressObj.percent);
+  const transferredMB = (progressObj.transferred / 1024 / 1024).toFixed(1);
+  const totalMB = (progressObj.total / 1024 / 1024).toFixed(1);
+  const speedMBps = (progressObj.bytesPerSecond / 1024 / 1024).toFixed(2);
+  
+  log.info(`Download progress: ${percent}% (${transferredMB}MB / ${totalMB}MB) @ ${speedMBps}MB/s`);
+  
+  // Update window title to show progress
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.setTitle(`LatexWriter - Downloading Update ${percent}%`);
+  }
 });
 
-// 🚀 when update is downloaded
-autoUpdater.on("update-downloaded", () => {
+autoUpdater.on("update-downloaded", (info) => {
+  log.info("Update downloaded:", info.version);
+  
+  // Reset window title
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.setTitle("LatexWriter");
+  }
+  
   const choice = dialog.showMessageBoxSync(mainWindow, {
     type: "question",
     buttons: ["Restart Now", "Later"],
     defaultId: 0,
     cancelId: 1,
-    title: "Update Available",
-    message:
-      "A new version has been downloaded. Do you want to restart the app now to install it?",
+    title: "Update Ready",
+    message: `Version ${info.version} has been downloaded and is ready to install!`,
+    detail: "The application will restart to complete the installation."
   });
 
   if (choice === 0) {
-    autoUpdater.quitAndInstall(); // restart & install
+    setImmediate(() => autoUpdater.quitAndInstall());
   }
 });
+
+// ========== APP LIFECYCLE ==========
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
+
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });

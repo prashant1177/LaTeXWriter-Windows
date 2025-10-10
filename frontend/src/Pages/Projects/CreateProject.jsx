@@ -1,27 +1,24 @@
 import { useState } from "react";
 import Button from "../../ui/Button/Button";
 import Input from "../../ui/Input/Input";
-import TextArea from "../../ui/Input/TextArea";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
+import { MoveLeft } from "lucide-react";
 export default function CreateProject() {
-  const [title, setTitle] = useState(""); // title state
-  const [about, setAbout] = useState(""); // title state
-  const [topics, setTopics] = useState(""); // content state
+  const [title, setTitle] = useState(""); 
   const [documentClass, setDocumentClass] = useState("Blank");
-  const [privatMark, setPrivateMark] = useState(false); // content state
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  const handleBack = () => {
+    navigate(`/`);
+  };
   const handleSave = async () => {
     try {
       setLoading(true);
       const Project = {
         title: title,
-        about: about,
-        topics: topics,
-        privatMark: privatMark,
         documentClass: documentClass,
       };
       const res = await api.post("/projects/create", Project);
@@ -54,8 +51,21 @@ export default function CreateProject() {
         </div>
 
         <div className="space-y-6">
-          
-                    <div className="space-y-2">
+          <div className="space-y-2">
+            <label className="text-gray-900 block text-sm font-medium">
+              Title
+            </label>
+            <Input
+              disabled={loading}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              varient="transparent"
+              maxLength={70}
+              className="transition-all duration-200 focus:scale-[1.02]"
+            />
+          </div>
+
+          <div className="space-y-2">
             <label className="text-gray-900 block text-sm font-medium">
               Document Template
             </label>
@@ -85,64 +95,21 @@ export default function CreateProject() {
               ))}
             </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-gray-900 block text-sm font-medium">
-              Title
-            </label>
-            <Input
-              disabled={loading}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              varient="transparent"
-              maxLength={70}
-              className="transition-all duration-200 focus:scale-[1.02]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-gray-900 block text-sm font-medium">
-              About (Optional)
-            </label>
-            <TextArea
-              disabled={loading}
-              value={about}
-              onChange={(e) => setAbout(e.target.value)}
-              varient="transparent"
-              className="transition-all duration-200 focus:scale-[1.01] min-h-[100px] sm:min-h-[120px]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-gray-900 block text-sm font-medium">
-              Topics (Optional)
-            </label>
-            <Input
-              value={topics}
-              onChange={(e) => setTopics(e.target.value)}
-              varient="transparent"
-              placeholder="Add relevant topics separated with commas"
-              className="transition-all duration-200 focus:scale-[1.02]"
-              type="text"
-              disabled={loading}
-            />
-          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-2 pt-4 border-t border-white/10">
-          <div className="flex items-center space-x-3 order-2 sm:order-1">
-            <label className="text-gray-900 text-sm font-medium cursor-pointer select-none">
-              Make it private
-            </label>
-            <div className="relative">
-              <input
-                type="checkbox"
-                onChange={() => setPrivateMark(!privatMark)}
-                disabled={loading}
-                className="h-5 w-5 text-blue-600 border-2 border-gray-300 rounded-md focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer hover:border-blue-400"
-              />
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 sm:gap-2 pt-4 border-t border-white/10">
+          <div className="order-1 sm:order-2">
+            <Button
+            varient="transparent"
+              disabled={loading}
+              onClick={handleBack}
+              className="w-full sm:w-auto  py-2.5 transition-all duration-200 hover:scale-105 active:scale-95 "
+            >
+              {loading ? null : (
+                <div className="text-gray-800 flex items-center gap-3 hover:text-gray-950 transition"><MoveLeft /></div>
+              )}
+            </Button>
           </div>
-
           <div className="order-1 sm:order-2">
             <Button
               disabled={loading}

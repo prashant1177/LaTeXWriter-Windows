@@ -34,7 +34,6 @@ export default function EditorIndex() {
 
   const [latex, setLatex] = useState("");
   const [leftView, setLeftView] = useState("PDF");
-  const [rightView, setRightView] = useState("Editor");
   const [pdfUrl, setPdfUrl] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [fetch, setFetch] = useState(false);
@@ -75,10 +74,6 @@ export default function EditorIndex() {
   const handleViewLeft = async (s) => {
     setLeftView(s);
   };
-  const handleViewRight = (s) => {
-    setRightView(s);
-  };
-
   const compileLatexWithImage = async (writing = false) => {
     try {
       setLoading(true);
@@ -106,8 +101,8 @@ export default function EditorIndex() {
       setPdfUrl(URL.createObjectURL(blob));
       setIsError(false);
       SetErrLight("blue");
-      if(!writing){
-        setRightView("PDF");
+      if (!writing) {
+        setLeftView("PDF");
       }
     } catch (err) {
       if (writing) {
@@ -208,72 +203,8 @@ export default function EditorIndex() {
 
   return (
     <div className="flex flex-col h-screen">
-      
-
-      <div className="flex flex-col-reverse md:flex-row flex-1  md:overflow-hidden">
-        <div className="w-1/2 md:min-w-1/2 md:max-w-1/2">
-        <EditorTool
-          compileLatexWithImage={compileLatexWithImage}
-          handleViewRight={handleViewRight}
-          handleViewLeft={handleViewLeft}
-          leftView={leftView}
-          rightView={rightView}
-          loading={loading}
-            errLight={errLight}
-        />
-        {leftView == "PDF" ? (
-          <PdfViewer
-            pdfUrl={pdfUrl}
-            loading={loading}
-            isError={isError}
-            setErrorFix={setErrorFix}
-            ErrorFix={ErrorFix}
-            setDebug={setDebug}
-            debug={debug}
-            compileLatexWithImage={compileLatexWithImage}
-            setAutoCompilation={setAutoCompilation}
-            autoCompilation={autoCompilation}
-          />
-        ) : leftView == "versions" ? (
-          <Versions projectid={projectid} />
-        ) : leftView == "math" ? (
-          <MathSymbolsEditor editorRef={editorRef} />
-        ) : leftView == "Gemini" ? (
-          <AIChat />
-        ) : leftView == "premium" ? (
-          <PremiumIndex />
-        ) : (
-          <FolderView
-            saveFile={saveFile}
-            projectid={projectid}
-            setLatex={setLatex}
-            currFolder={currFolder}
-            setCurrFolder={setCurrFolder}
-            currFile={currfile}
-            setCurrFile={setCurrFile}
-            folders={folders}
-            setFolders={setFolders}
-            files={files}
-            setFiles={setFiles}
-            setImageUrl={setImageUrl}
-          />
-        )}
-</div>
-        <div className="flex-1 w-1/2 min-w-1/2 border-l-1 border-gray-200">
-          {rightView == "commit" ? (
-            <>
-              {" "}
-              <Commit projectid={projectid} handleViewRight={handleViewRight} />
-            </>
-          ) : rightView == "settings" ? (
-            <>
-              {" "}
-              <ProjectSettings
-                projectid={projectid}
-                handleViewRight={handleViewRight}
-              />
-            </>
-          ) : (
+      <div className="flex flex-col lg:flex-row lg:overflow-hidden">
+        <div className="flex-1  lg:min-w-1/2 lg:max-w-1/2 border-l-1 border-gray-200">
             <MonacoEditor
               setLatex={setLatex}
               editorRef={editorRef}
@@ -281,7 +212,66 @@ export default function EditorIndex() {
               imageUrl={imageUrl}
               extensions={extensions}
             />
-          )}
+        </div>
+        <div className="flex-1 lg:min-w-1/2 lg:max-w-1/2">
+          <EditorTool
+            compileLatexWithImage={compileLatexWithImage}
+            handleViewLeft={handleViewLeft}
+            leftView={leftView}
+            loading={loading}
+            errLight={errLight}
+          />
+
+          <div className={leftView == "PDF" ? "block h-full" : "hidden"}>
+            <PdfViewer
+              pdfUrl={pdfUrl}
+              loading={loading}
+              isError={isError}
+              setErrorFix={setErrorFix}
+              ErrorFix={ErrorFix}
+              setDebug={setDebug}
+              debug={debug}
+              compileLatexWithImage={compileLatexWithImage}
+              setAutoCompilation={setAutoCompilation}
+              autoCompilation={autoCompilation}
+            />
+          </div>
+          {leftView == "versions" ? (
+            <Versions projectid={projectid} />
+          ) : leftView == "math" ? (
+            <MathSymbolsEditor editorRef={editorRef} />
+          ) : leftView == "Gemini" ? (
+            <AIChat />
+          ) : leftView == "premium" ? (
+            <PremiumIndex />
+          ) : leftView == "files" ? (
+            <FolderView
+              saveFile={saveFile}
+              projectid={projectid}
+              setLatex={setLatex}
+              currFolder={currFolder}
+              setCurrFolder={setCurrFolder}
+              currFile={currfile}
+              setCurrFile={setCurrFile}
+              folders={folders}
+              setFolders={setFolders}
+              files={files}
+              setFiles={setFiles}
+              setImageUrl={setImageUrl}
+            />
+          ): leftView == "commit" ? (
+            <>
+              {" "}
+              <Commit projectid={projectid} />
+            </>
+          ) : leftView == "settings" ? (
+            <>
+              {" "}
+              <ProjectSettings
+                projectid={projectid}
+              />
+            </>
+          ): null}
         </div>
       </div>
     </div>

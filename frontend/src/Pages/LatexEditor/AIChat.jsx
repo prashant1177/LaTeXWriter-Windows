@@ -43,7 +43,7 @@ export default function AIChat() {
   }
 
   return (
-    <div className="h-full max-h-screen relative mb-16">
+    <div className="h-full max-h-screen relative mb-16 style-4">
       <div className="w-full p-6 border-t border-gray-200 flex items-center gap-3 bg-white sticky top-0 left-0">
         <input
           type="text"
@@ -61,24 +61,21 @@ export default function AIChat() {
           Send
         </button>
       </div>
-      <div className="w-full overflow-y-auto p-2 gap-8 flex flex-col">
-        <div className="text-gray-500 text-center">
-          The chat will be cleared on refresh
-        </div>
-        {loading && (
-          <div className="p-4 border border-gray-200 rounded-xl shadow-sm bg-gray-50 text-gray-500 italic">
-            Loading...
+      <div className="w-full overflow-y-auto p-2 gap-8 flex flex-col style-4">
+        {responses.length < 1 && (
+          <div className="text-gray-500 text-center">
+            The chat will be cleared on refresh
           </div>
         )}
+        {loading && <div className="p-4 ">Loading...</div>}
         {responses.map((r, idx) => (
           <div
             key={idx}
-            className="text-wrap prose p-4 border border-gray-200 rounded-xl shadow-sm bg-white text-gray-900 hover:shadow-md transition-shadow duration-200"
+            className="text-wrap prose p-4  bg-white text-gray-900 x style-4"
             dangerouslySetInnerHTML={{ __html: marked(r.text) }}
           />
         ))}
       </div>
-      
     </div>
   );
 }

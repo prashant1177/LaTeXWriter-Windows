@@ -207,7 +207,7 @@ const MathSymbolsEditor = ({ editorRef }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white overflow-auto flex flex-col h-full">
+    <div className="max-w-6xl mx-auto p-6 bg-white overflow-auto flex flex-col h-full style-4">
       {/* Search Bar */}
       <div className="mb-6 relative">
         <div className="relative">

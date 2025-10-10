@@ -34,7 +34,7 @@ export default function PdfViewer({
     setDebug(false);
   };
   return (
-    <div className="flex flex-col flex-1 relative ">
+    <div className="flex flex-col flex-1 relative h-full">
       <div className="shrink-0">
         <PdfTools
           isChecked={isChecked}
@@ -47,7 +47,7 @@ export default function PdfViewer({
       </div>
 
       {/* PDF content fills remaining space */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden">
         {loading && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center ">
             <div className="animate-spin rounded-full h-24 w-24 border-b-4"></div>
@@ -56,7 +56,7 @@ export default function PdfViewer({
         {pdfUrl ? (
           isChecked ? (
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-              <Viewer className="h-full w-full " fileUrl={pdfUrl} />
+              <Viewer className="h-full w-full style-4" fileUrl={pdfUrl} />
             </Worker>
           ) : (
             <iframe

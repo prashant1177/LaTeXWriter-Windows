@@ -1,70 +1,85 @@
 import { useState } from "react";
 import Input from "../../ui/Input/Input";
-import TextArea from "../../ui/Input/TextArea";
 import Button from "../../ui/Button/Button";
 import { useEffect } from "react";
 import api from "../../api";
-import {
-  CircleMinus,
-  CirclePlus,
-  MoveLeft,
-  MoveRight,
-  Settings,
-} from "lucide-react";
+import { CircleMinus, CirclePlus, MoveLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ToastLayout from "../../ui/Toast";
 
-export default function ProjectSettings({ projectid, handleViewRight }) {
+export default function ProjectSettings({ projectid }) {
   const [title, setTitle] = useState("");
-  const [about, setAbout] = useState("");
-  const [topics, setTopics] = useState("");
   const [owner, setOwner] = useState("");
-  const [collaborators, setCollaborators] = useState({});
+  const [collaborators, setCollaborators] = useState([]);
   const [newEditor, setNewEditor] = useState("");
   const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await api.get(`/projects/settings/${projectid}`);
         setTitle(res.data.project.title);
-        setAbout(res.data.project.about);
-        setTopics(res.data.project.topics);
         setOwner(res.data.project.owner.email);
         setCollaborators(res.data.project.editors);
       } catch (err) {
         console.error("Error fetching project:", err);
+        setToast("Error fetching project!");
+        setTimeout(() => {
+          setToast(null);
+        }, 1500);
       }
     };
     fetchData();
   }, [projectid]);
+
   const removeAccess = (id) => {
     setCollaborators(collaborators.filter((c) => c.id !== id));
   };
 
   const saveChanges = async () => {
-    await api.put(`/projects/settings/${projectid}`, {
-      title,
-      about,
-      topics,
-    });
+    try {
+      await api.put(`/projects/settings/${projectid}`, {
+        title,
+      });
+      setToast("Changes Saved!");
+    } catch (error) {
+      setToast("Error saving changes");
+    } finally {
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   const addEditor = async () => {
-    await api.put(`/projects/editoracces/${projectid}`, {
-      email: newEditor,
-    });
-    setNewEditor("");
+    try {
+      await api.put(`/projects/editoracces/${projectid}`, {
+        email: newEditor,
+      });
+      setToast("Access Given To New User!");
+    } catch (error) {
+      setToast("Error occured!");
+    } finally {
+      setNewEditor("");
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
+    }
   };
   const deleteProject = async () => {
     try {
       await api.delete(`/projects/delete/${projectid}`);
       navigate(`/`);
     } catch (e) {
-      alert("Failed to delete project");
+      setToast("Failed to delete project");
+      setTimeout(() => {
+        setToast(null);
+      }, 1500);
     }
   };
-
   return (
     <div className="h-full w-full  overflow-y-auto">
+      {toast && <ToastLayout message={toast} />}
       <div className="flex justify-between py-2 px-8 bg-gray-50  border-b border-gray-200 text-sm ">
         <h2 className="flex items-center text-gray-950 gap-2">
           {" "}
@@ -72,13 +87,6 @@ export default function ProjectSettings({ projectid, handleViewRight }) {
           Project Settings
         </h2>
         <div className="flex items-center gap-8">
-          <button
-            className="text-gray-800 flex items-center gap-3 hover:text-gray-950 transition"
-            onClick={() => handleViewRight("Editor")}
-          >
-            <MoveLeft /> Back To Editor
-          </button>
-
           <Button onClick={saveChanges}>Save Changes</Button>
         </div>
       </div>
@@ -94,27 +102,6 @@ export default function ProjectSettings({ projectid, handleViewRight }) {
           />
         </div>
 
-        {/* About */}
-        <div>
-          <label className="block text-sm font-medium mb-1">About</label>
-          <TextArea
-            value={about}
-            onChange={(e) => setAbout(e.target.value)}
-            placeholder="Enter project description"
-            rows={4}
-          />
-        </div>
-
-        {/* Topics */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Topics</label>
-          <Input
-            value={topics}
-            onChange={(e) => setTopics(e.target.value)}
-            placeholder="Enter topics (comma separated)"
-          />
-        </div>
-
         {/* Collaborators */}
         <div>
           <div className="space-y-2 ">
@@ -123,9 +110,9 @@ export default function ProjectSettings({ projectid, handleViewRight }) {
               <span>{owner}</span>
             </div>
             {collaborators.length > 0 &&
-              collaborators.map((c) => (
+              collaborators.map((c, i) => (
                 <div
-                  key={c.id}
+                  key={i}
                   className="flex justify-between items-center bg-gray-100 px-3  py-2 rounded-md"
                 >
                   <span>{c.email}</span>

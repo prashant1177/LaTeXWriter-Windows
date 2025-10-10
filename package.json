@@ -1,16 +1,22 @@
 {
   "name": "latexwriter",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "main": "main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix frontend\" \"electron .\"",
     "build": "npm run build --prefix frontend",
     "start": "npm run build --prefix frontend && electron .",
-    "dist": "npm run build --prefix frontend && electron-builder"
+    "dist": "npm run build --prefix frontend && electron-builder",
+    "launch": "npm run build --prefix frontend && electron-builder --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prashant1177/LaTeXWriter-Windows"
   },
   "build": {
     "appId": "com.latexwriter.desktop",
     "productName": "LatexWriter",
+"artifactName": "${productName}-Setup-${version}.${ext}",
     "win": {
       "target": "nsis",
       "icon": "logo.ico"
